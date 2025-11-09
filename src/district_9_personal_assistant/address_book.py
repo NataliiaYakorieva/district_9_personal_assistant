@@ -3,4 +3,5 @@ class AddressBook:
     Will contain all address book related logic
     """
 
-    pass
+    def test_method(self):
+        pass
