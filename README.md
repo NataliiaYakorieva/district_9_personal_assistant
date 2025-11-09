@@ -46,8 +46,6 @@ python3 -m venv venv
   
 ## Install pre-commit hooks (mandatory once per repository clone)
 
-pre-commit install
-
 - **macOS/Linux:**
   ```bash
   pre-commit install
