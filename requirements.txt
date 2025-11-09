@@ -1,10 +1,11 @@
 astroid==4.0.1
-black==25.9.0
+autopep8==2.3.2
 cfgv==3.4.0
 click==8.3.0
 dill==0.4.0
 distlib==0.4.0
 filelock==3.20.0
+flake8==7.3.0
 identify==2.6.15
 isort==7.0.0
 mccabe==0.7.0
@@ -16,7 +17,6 @@ platformdirs==4.5.0
 pre_commit==4.3.0
 pycodestyle==2.14.0
 pyflakes==3.4.0
-pylint==4.0.2
 pytokens==0.3.0
 PyYAML==6.0.3
 tomlkit==0.13.3

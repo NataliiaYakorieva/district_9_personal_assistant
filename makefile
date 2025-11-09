@@ -4,11 +4,11 @@ install:
 test:
 	python3 -m unittest discover -s tests
 
-pylint:
-	pylint .
+check_formatting:
+	flake8 .
 
 fix_formatting:
-	black .
+	autopep8 --in-place --aggressive --aggressive --recursive .
 
 run:
 	python3 main.py
