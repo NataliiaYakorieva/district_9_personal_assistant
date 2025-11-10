@@ -29,6 +29,36 @@ python3 -m venv venv
   .\venv\Scripts\Activate.ps1
   ```
 
+#### Deactivate venv
+
+- **macOS/Linux:**
+  ```bash
+  deactivate
+  ```
+- **Windows (cmd):**
+  ```cmd
+  deactivate
+  ```
+- **Windows (PowerShell):**
+  ```powershell
+  deactivate
+  ```
+  
+## Install pre-commit hooks (mandatory once per repository clone)
+
+- **macOS/Linux:**
+  ```bash
+  pre-commit install
+  ```
+- **Windows (cmd):**
+  ```cmd
+  pre-commit install
+  ```
+- **Windows (PowerShell):**
+  ```powershell
+  pre-commit install
+  ```
+
 ## Running Commands
 
 You can run each command separately as shown below.
@@ -55,15 +85,15 @@ You can run each command separately as shown below.
   python3 -m unittest discover -s tests
   ```
 
-### Lint code
+### Check code formatting
 
 - **macOS/Linux:**
   ```bash
-  make pylint
+  make check_formatting
   ```
 - **Windows (no Make):**
   ```cmd
-  pylint .
+  flake8 .
   ```
 
 ### Fix code formatting
@@ -74,7 +104,7 @@ You can run each command separately as shown below.
   ```
 - **Windows (no Make):**
   ```cmd
-  black .
+  autopep8 --in-place --aggressive --aggressive --recursive .
   ```
 
 ### Run the application
@@ -87,4 +117,3 @@ You can run each command separately as shown below.
   ```cmd
   python3 main.py
   ```
-
