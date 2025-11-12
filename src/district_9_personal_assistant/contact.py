@@ -1,8 +1,9 @@
-from dataclasses import field
+from dataclasses import dataclass, field
 from typing import List
 from phone import Phone, normalize_phone
 
 
+@dataclass
 class Contact:
     name: str
     phones: List[Phone] = field(default_factory=list)
