@@ -29,6 +29,7 @@ class Contact:
                 self.reset_main()
                 p.is_main = True
                 found = True
+                break
         if found:
             return f"Main number is set to: {normalized}"
         else:
