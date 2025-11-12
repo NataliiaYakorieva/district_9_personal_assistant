@@ -11,7 +11,7 @@ class Contact:
     def add_phone(self, phone_number: str, main: bool = False) -> str:
         phone = Phone(number=phone_number, is_main=main)
         if not phone.is_valid():
-            return f"Inaccurate number: {phone_number}"
+            return f"Invalid phone number: {phone_number}"
         if phone.is_main:
             self.reset_main()
         self.phones.append(phone)
