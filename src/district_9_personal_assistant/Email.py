@@ -22,7 +22,7 @@ class Email:
         if not self.address:
             return False
 
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$'
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         return bool(re.match(pattern, self.address))
 
     def __str__(self) -> str:
