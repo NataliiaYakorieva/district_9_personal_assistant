@@ -152,7 +152,7 @@ class Birthday:
                 raise ValueError("Birthday cannot be in future.")
             return birth_date
         except ValueError as e:
-            raise ValueError (f"Data format is incorrect: '{date_str}'. Please use the next format DD.MM.YYYY. {e}")
+            raise ValueError(f"Data format is incorrect: '{date_str}'. Please use the next format DD.MM.YYYY. {e}")
 
     @property
     def age(self) -> int:
