@@ -79,8 +79,7 @@ class Contact:
         for email in self.emails:
             if email.address == email_address:
                 self.emails.remove(email)
-                return f"Email {email_address} removed from contact {
-                    self.name}."
+                return f"Email {email_address} removed from contact {self.name}."
         return f"Email {email_address} not found in contact {self.name}."
 
     def show_notes(self) -> str:
