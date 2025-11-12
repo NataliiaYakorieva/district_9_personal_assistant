@@ -67,7 +67,7 @@ class Contact:
             if email.address == old_email:
                 new_email_obj = Email(address=new_email)
                 self.emails[i] = new_email_obj
-                return (f"Email changed from {old_email} to {new_email}"
+                return (f"Email changed from {old_email} to {new_email} "
                         f"for contact {self.name}.")
         return f"Email {old_email} not found in contact {self.name}."
 
