@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 
-PHONE_PATTERN = re.compile(r'^\+?[1-9][0-9]{7,14}$')
+PHONE_PATTERN = re.compile(r'^\+[1-9][0-9]{7,14}$')
 
 
 def normalize_phone(phone_number: str) -> str:
