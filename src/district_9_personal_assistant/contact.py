@@ -4,7 +4,6 @@ from .phone import Phone, normalize_phone
 from .note import Note
 import readchar
 from datetime import datetime, date, timedelta
-import address_book
 
 
 @dataclass
