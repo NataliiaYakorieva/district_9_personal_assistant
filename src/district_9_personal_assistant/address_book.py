@@ -29,6 +29,35 @@ class AddressBook:
         return wrapper
 
     @require_contact
+    def add_phone(self, contact):
+        return contact.add_phone()
+
+    @require_contact
+    def set_main_phone(self, contact):
+        return contact.set_main_phone()
+
+    @require_contact
+    def show_phones(self, contact):
+        return contact.show_phones()
+
+    @require_contact
+    def reset_main_phone(self, contact):
+        contact.reset_main_phone()
+        return f"Main phone number reset for contact {contact.name}."
+
+    @require_contact
+    def add_email(self, contact):
+        return contact.add_email()
+
+    @require_contact
+    def change_email(self, contact):
+        return contact.change_email()
+
+    @require_contact
+    def remove_email(self, contact):
+        return contact.remove_email()
+
+    @require_contact
     def show_notes(self, contact):
         return contact.show_notes()
 

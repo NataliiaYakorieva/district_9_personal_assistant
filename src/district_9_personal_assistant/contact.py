@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List
 from .phone import Phone, normalize_phone
 from .note import Note
+from .Email import Email
 import readchar
 
 
@@ -10,8 +11,12 @@ class Contact:
     name: str
     phones: List[Phone] = field(default_factory=list)
     notes: List[Note] = field(default_factory=list)
+    emails: List[Email] = field(default_factory=list)
 
-    def add_phone(self, phone_number: str, main: bool = False) -> str:
+    def add_phone(self) -> str:
+        phone_number = input("Phone number: ")
+        input_main = input("Is this the main number? (y/n): ").strip().lower()
+        main = input_main == 'y'
         phone = Phone(number=phone_number, is_main=main)
         if not phone.is_valid():
             return f"Invalid phone number: {phone_number}"
@@ -24,7 +29,8 @@ class Contact:
         for p in self.phones:
             p.is_main = False
 
-    def set_main_phone(self, phone_number: str) -> str:
+    def set_main_phone(self) -> str:
+        phone_number = input("Phone number to set as main: ")
         normalized = normalize_phone(phone_number)
         found = False
         for p in self.phones:
@@ -44,6 +50,37 @@ class Contact:
             label = "[main]" if p.is_main else ""
             out.append(f"{label} {p.number}".strip())
         return "; ".join(out)
+
+    def add_email(self) -> str:
+        email_address = input("Email address: ").lower()
+        email = Email(address=email_address)
+        self.emails.append(email)
+        return f"Email {email.address} added to contact {self.name}."
+
+    def change_email(self) -> str:
+        old_email = input("Old email address: ").lower()
+        new_email = input("New email address: ").lower()
+        if not self.emails:
+            return f"No emails found for contact {self.name}."
+
+        for i, email in enumerate(self.emails):
+            if email.address == old_email:
+                new_email_obj = Email(address=new_email)
+                self.emails[i] = new_email_obj
+                return (f"Email changed from {old_email} to {new_email} "
+                        f"for contact {self.name}.")
+        return f"Email {old_email} not found in contact {self.name}."
+
+    def remove_email(self) -> str:
+        email_address = input("Email address to remove: ").lower()
+        if not self.emails:
+            return f"No emails found for contact {self.name}."
+
+        for email in self.emails:
+            if email.address == email_address:
+                self.emails.remove(email)
+                return f"Email {email_address} removed from contact {self.name}."
+        return f"Email {email_address} not found in contact {self.name}."
 
     def show_notes(self) -> str:
         if not self.notes:
