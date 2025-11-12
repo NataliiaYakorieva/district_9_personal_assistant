@@ -19,5 +19,6 @@ pycodestyle==2.14.0
 pyflakes==3.4.0
 pytokens==0.3.0
 PyYAML==6.0.3
+readchar==4.2.1
 tomlkit==0.13.3
 virtualenv==20.35.4
