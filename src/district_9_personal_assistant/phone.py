@@ -8,6 +8,7 @@ def normalize_phone(phone_number: str) -> str:
     """
     Normalizes the number to international format:
     removes spaces, dashes, brackets.
+    Adds '+' prefix if not present to ensure international format.
     """
     if not phone_number:
         return ""
