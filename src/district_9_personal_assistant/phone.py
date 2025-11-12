@@ -30,6 +30,6 @@ class Phone:
 
     def is_valid(self) -> bool:
         """
-        Validates the number according to the pattern `^\+?[1-9][0-9]{7,14}$`
+        Validates the number according to the pattern `^\\+?[1-9][0-9]{7,14}$`
         """
         return PHONE_PATTERN.match(self.number) is not None
