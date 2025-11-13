@@ -1,2 +1,3 @@
 [flake8]
 exclude = venv, .idea, __pycache__
+max-line-length = 99

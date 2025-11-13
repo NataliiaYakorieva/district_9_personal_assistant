@@ -9,9 +9,9 @@ class Email:
     address: str
 
     def __post_init__(self):
-        '''Validate the email address format.'''
+        """Validate the email address format."""
         if not self.is_valid():
-            return (f"Invalid email address: {self.address}")
+            return f"Invalid email address: {self.address}"
 
     def is_valid(self) -> bool:
         """
