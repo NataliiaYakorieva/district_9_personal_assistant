@@ -6,9 +6,11 @@ from dataclasses import dataclass, field
 import questionary
 import pickle
 
+from .selection import Selection
+
 
 @dataclass
-class AddressBook:
+class AddressBook(Selection):
     """
     Represents an address book containing contacts.
     """
@@ -35,8 +37,12 @@ class AddressBook:
         return None
 
     def select_active_contact(self):
-        """Set the active contact for further operations."""
-        contact = self.find_contact()
+        """Set the active contact for further operations using interactive selection."""
+        contact = self.select_item_interactively(
+            self.contacts,
+            lambda c: c.name.value,
+            "Select contact:",
+        )
         if contact is None:
             return "Contact not found."
         self._active_contact = contact
@@ -70,12 +76,6 @@ class AddressBook:
     def show_phones(self):
         """Show all phones of the active contact."""
         return self._active_contact.show_phones()
-
-    def reset_main_phone(self):
-        """Reset main phone for the active contact."""
-        contact = self._active_contact
-        contact.reset_main_phone()
-        return f"Main phone number reset for contact {contact.name.value}."
 
     def add_email(self):
         """Add an email to the active contact."""
