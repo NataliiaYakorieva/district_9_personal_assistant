@@ -22,7 +22,6 @@ class Contact:
     def add_field(self, field_instance: BaseField):
         """Adds a field (Phone, Email, Address, Note) to the contact."""
         try:
-            field_instance.validate()
             if isinstance(field_instance, Phone):
                 if field_instance.is_main:
                     self._reset_main_phone()

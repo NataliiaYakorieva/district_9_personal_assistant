@@ -22,7 +22,7 @@ class BaseField(ABC):
         Abstract method to validate the field's data.
         Should raise ValueError for invalid data.
         """
-        raise NotImplementedError
+        pass
 
     def to_dict(self) -> dict:
         """Converts the field to a dictionary for serialization."""
@@ -46,7 +46,7 @@ class BaseField(ABC):
                 setattr(self, field_info.name, new_data[field_info.name])
 
         # Re-run normalization and validation after updating fields.
-        self.__post_init__()
+        self.validate()
 
     def __str__(self) -> str:
         """Default string representation."""
