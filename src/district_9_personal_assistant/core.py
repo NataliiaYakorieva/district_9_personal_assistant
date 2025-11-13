@@ -69,13 +69,19 @@ def run_personal_assistant():
                     print(book.add_contact())
                 case Commands.FIND_CONTACT.value:
                     print(book.find_contact())
-                case Commands.EXIT.value:
-                    handle_exit()
-                    break
                 case Commands.HELP.value:
                     handle_help()
                 case Commands.SELECT_ACTIVE_CONTACT.value:
                     print(book.select_active_contact())
+                case Commands.EDIT_CONTACT.value:
+                    print(book.edit_contact())
+                case Commands.DELETE_CONTACT.value:
+                    print(book.delete_contact())
+                case Commands.SHOW_CONTACTS.value:
+                    print(book.show_contacts())
+                case Commands.EXIT.value:
+                    handle_exit()
+                    break
                 case _:
                     print("Unknown command.")
         else:
