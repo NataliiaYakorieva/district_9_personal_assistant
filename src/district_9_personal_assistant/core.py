@@ -1,30 +1,6 @@
 from .address_book import AddressBook
-
-commands_info = (
-    "\nAvailable commands:\n"
-    "  add_contact\n"
-    "    - name (required): Name of the contact\n"
-    "  find_contact\n"
-    "    - name (required): Name of the contact to find\n"
-    "  add_note\n"
-    "    - contact name (required): Name of the contact to add a note to\n"
-    "    - title (optional): Brief subject line for the note\n"
-    "    - text (required): Content of the note\n"
-    "    - tags (optional): Comma-separated tags (e.g., meeting, follow-up)\n"
-    "  show_notes\n"
-    "    - contact name (required): Name of the contact whose notes to list\n"
-    "  edit_note\n"
-    "    - contact name (required): Name of the contact whose note to edit\n"
-    "    - query (required): Search by text, tag, or title to find the note\n"
-    "    - index (required if multiple matches): Note index to edit\n"
-    "    - content (optional): New content\n"
-    "    - tags (optional): New tags (comma separated)\n"
-    "  delete_note\n"
-    "    - contact name (required): Name of the contact whose note to delete\n"
-    "    - query (required): Search by text, tag, or title to find the note\n"
-    "    - index (required if multiple matches): Note index to delete\n"
-    "  exit\n"
-    "    - Exit and save data\n")
+import questionary
+from .constants.commands import book_commands_list, contact_commands_list, commands_info, Commands
 
 
 def input_error(func):
@@ -53,33 +29,105 @@ def parse_input(user_input):
     return cmd, *args
 
 
+def get_current_commands_list(active_contact):
+    if active_contact is None:
+        return book_commands_list
+    else:
+        return contact_commands_list
+
+
 def run_personal_assistant():
-    book = AddressBook()
-    print("Welcome to the Personal Assistant!\n")
-    print(f"{commands_info}\n")
+    book = AddressBook.load_from_file()
+    print("Welcome to the Personal Assistant!")
+    print(commands_info)
 
     while True:
+        active_contact = book.get_active_contact()
+        commands_list = get_current_commands_list(active_contact)
 
-        user_input = input("Enter a command: ")
+        if active_contact is not None:
+            print(f"Working on the contact: {active_contact.name}")
+
+        user_input = questionary.autocomplete(
+            "Enter a command:",
+            choices=commands_list,
+            match_middle=True,
+        ).ask()
+        # TODO We should use ARGS
         command, *args = parse_input(user_input)
 
-        match command:
-            case "add_contact":
-                print(book.add_contact())
-            case "find_contact":
-                print(book.find_contact())
-            case "add_note":
-                print(book.add_note())
-            case "list_notes":
-                print(book.list_notes())
-            case "edit_note":
-                print(book.edit_note())
-            case "delete_note":
-                print(book.delete_note())
-            case "exit":
-                print("Exit. Data saved.")
-                break
-            case "help":
-                print(f"{commands_info}\n")
-            case _:
-                print("Unknown command.")
+        def handle_help():
+            print(f"{commands_info}\n")
+
+        def handle_exit():
+            print("Exit. Data saved.")
+            book.save_to_file()
+
+        if active_contact is None:
+            match command:
+                case Commands.ADD_CONTACT.value:
+                    print(book.add_contact())
+                case Commands.FIND_CONTACT.value:
+                    print(book.find_contact())
+                case Commands.EXIT.value:
+                    handle_exit()
+                    break
+                case Commands.HELP.value:
+                    handle_help()
+                case Commands.SELECT_ACTIVE_CONTACT.value:
+                    print(book.select_active_contact())
+                case _:
+                    print("Unknown command.")
+        else:
+            match command:
+                case Commands.ADD_PHONE.value:
+                    print(book.add_phone())
+                case Commands.EDIT_PHONE.value:
+                    print(book.edit_phone())
+                case Commands.DELETE_PHONE.value:
+                    print(book.delete_phone())
+                case Commands.SHOW_PHONES.value:
+                    print(book.show_phones())
+                case Commands.SET_MAIN_PHONE.value:
+                    print(book.set_main_phone())
+                case Commands.ADD_EMAIL.value:
+                    print(book.add_email())
+                case Commands.EDIT_EMAIL.value:
+                    print(book.edit_email())
+                case Commands.DELETE_EMAIL.value:
+                    print(book.delete_email())
+                case Commands.SHOW_EMAILS.value:
+                    print(book.show_emails())
+                case Commands.SET_MAIN_EMAIL.value:
+                    print(book.set_main_email())
+                case Commands.ADD_NOTE.value:
+                    print(book.add_note())
+                case Commands.EDIT_NOTE.value:
+                    print(book.edit_note())
+                case Commands.DELETE_NOTE.value:
+                    print(book.delete_note())
+                case Commands.SHOW_NOTES.value:
+                    print(book.show_notes())
+                case Commands.FIND_NOTE.value:
+                    print(book.find_note())
+                case Commands.FIND_BY_TAG.value:
+                    print(book.find_by_tag())
+                case Commands.ADD_ADDRESS.value:
+                    print(book.add_address())
+                case Commands.EDIT_ADDRESS.value:
+                    print(book.edit_address())
+                case Commands.DELETE_ADDRESS.value:
+                    print(book.delete_address())
+                case Commands.SHOW_ADDRESSES.value:
+                    print(book.show_addresses())
+                case Commands.SET_MAIN_ADDRESS.value:
+                    print(book.set_main_address())
+                case Commands.EXIT.value:
+                    handle_exit()
+                    break
+                case Commands.HELP.value:
+                    handle_help()
+                case Commands.BACK_TO_BOOK.value:
+                    print(book.back_to_book())
+                case _:
+                    print("Unknown command.")
