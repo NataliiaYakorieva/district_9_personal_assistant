@@ -76,3 +76,5 @@ class Address:
             street_address=data.get("street_address", ""),
             zip_code=data.get("zip_code", ""),
         )
+
+    __str__ = full_address

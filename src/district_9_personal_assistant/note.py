@@ -31,18 +31,26 @@ class Note:
             if t not in self.tags_list:
                 self.tags_list.append(t)
 
-    def edit_content(self, content: str):
+    def update_note(
+            self,
+            content: str = "",
+            tags_string: Optional[str] = "",
+            title: Optional[str] = ""):
         self.content = content
-
-    def edit_title(self, title: str):
         self.title = title
+        self.tags_string = tags_string
+        self.tags_list.clear()
+        self.add_tags(tags_string)
 
     def get_tags_list(self) -> List[str]:
         return self.tags_list
 
     def __str__(self):
-        tags_str = ", ".join(self.tags_list)
+        tags_str = ", ".join(
+            self.tags_list) if self.tags_list else "No tags added."
         title_str = f"Title: {self.title}\n" if self.title else ""
-        return f"{title_str}Note: {
-            self.content}\nTags: {tags_str}\nCreated at: {
-            self.creation_date.strftime('%Y-%m-%d %H:%M:%S')}"
+        return (
+            f"{title_str}Note: {self.content}\n"
+            f"Tags: {tags_str}\n"
+            f"Created at: {self.creation_date.strftime('%Y-%m-%d %H:%M:%S')}"
+        )
