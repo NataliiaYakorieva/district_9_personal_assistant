@@ -91,16 +91,14 @@ class Contact:
         return self._select_phone_interactively(self.phones)
 
     @_require_phone
-    def edit_phone(self, phone):
-        new_number = questionary.text(
-            "New phone number:",
-            default=phone.number).ask()
+    def edit_phone(self, phone: Phone):
+        """Edit the selected phone."""
+        new_number = questionary.text("New phone number:", default=phone.number).ask()
         try:
-            phone.number = new_number
-            phone.__post_init__()  # Re-run normalization and validation
-            return f"Phone number updated to {phone.number} for contact {self.name}."
+            phone.update({"number": new_number})
+            return f"Phone number updated to {phone.number}."
         except ValueError as e:
-            return f"Error updating phone: {e}"
+            return f"Error: {e}"
 
     @_require_phone
     def delete_phone(self, phone):
@@ -177,16 +175,14 @@ class Contact:
         return self._select_email_interactively(self.emails)
 
     @_require_email
-    def edit_email(self, email):
-        new_address = questionary.text(
-            "New email address:",
-            default=email.address).ask().lower()
+    def edit_email(self, email: Email):
+        """Edit the selected email."""
+        new_address = questionary.text("New email address:", default=email.address).ask()
         try:
-            email.address = new_address
-            email.validate()
-            return f"Email updated to {new_address} for contact {self.name}."
+            email.update({"address": new_address})
+            return f"Email updated to {email.address}."
         except ValueError as e:
-            return f"Error updating email: {e}"
+            return f"Error: {e}"
 
     @_require_email
     def delete_email(self, email):
@@ -262,19 +258,19 @@ class Contact:
         return note
 
     @_require_note
-    def edit_note(self, note):
-        new_title = questionary.text("Title:", default=note.title).ask()
-        new_content = questionary.text("Content:", default=note.content).ask()
-        new_tags = questionary.text(
-            "Tags (comma separated):", default=", ".join(note.get_tags_list())
-        ).ask()
-
+    def edit_note(self, note: Note):
+        """Edit the selected note."""
+        new_data = {
+            "title": questionary.text("New title:", default=note.title).ask(),
+            "content": questionary.text("New content:", default=note.content).ask(),
+            "tags_string": questionary.text(
+                "New tags (comma-separated):", default=note.tags_string).ask(),
+        }
         try:
-            note.update_note(new_content, new_tags, new_title)
-            note.validate()
-            return "Note updated."
+            note.update(new_data)
+            return "Note updated successfully."
         except ValueError as e:
-            return f"Error updating note: {e}"
+            return f"Error: {e}"
 
     @_require_note
     def delete_note(self, note):
@@ -326,25 +322,20 @@ class Contact:
         return self._select_address_interactively(self.addresses)
 
     @_require_address
-    def edit_address(self, address):
-        new_country = questionary.text(
-            "New country:", default=address.country).ask()
-        new_city = questionary.text("New city:", default=address.city).ask()
-        new_street = questionary.text(
-            "New street address:",
-            default=address.street_address).ask()
-        new_zip = questionary.text(
-            "New zip code:",
-            default=address.zip_code).ask()
+    def edit_address(self, address: Address):
+        """Edit the selected address."""
+        new_data = {
+            "country": questionary.text("New country:", default=address.country).ask(),
+            "city": questionary.text("New city:", default=address.city).ask(),
+            "street_address": questionary.text(
+                "New street address:", default=address.street_address).ask(),
+            "zip_code": questionary.text("New zip code:", default=address.zip_code).ask(),
+        }
         try:
-            address.country = new_country
-            address.city = new_city
-            address.street_address = new_street
-            address.zip_code = new_zip
-            address.__post_init__()
-            return (f"Address updated to {address} for contact {self.name}.")
+            address.update(new_data)
+            return f"Address updated to {address}."
         except ValueError as e:
-            return f"Error updating address: {e}"
+            return f"Error: {e}"
 
     @_require_address
     def delete_address(self, address):

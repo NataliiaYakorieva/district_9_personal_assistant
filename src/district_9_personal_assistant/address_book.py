@@ -1,8 +1,8 @@
 import os
+from typing import Optional
 from .contact import Contact
 from .name import Name
 from dataclasses import dataclass, field
-from typing import Optional
 import questionary
 import pickle
 

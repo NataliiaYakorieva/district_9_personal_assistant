@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass, fields, is_dataclass
 
 
 @dataclass
@@ -33,6 +33,20 @@ class BaseField(ABC):
     def from_dict(cls, data: dict):
         """Abstract method to create a field instance from a dictionary."""
         raise NotImplementedError
+
+    def update(self, new_data: dict) -> None:
+        """
+        Updates the fields of the instance with new data and re-validates.
+        """
+        if not is_dataclass(self):
+            raise TypeError("update() is only supported for dataclass instances.")
+
+        for field_info in fields(self):
+            if field_info.name in new_data:
+                setattr(self, field_info.name, new_data[field_info.name])
+
+        # Re-run normalization and validation after updating fields.
+        self.__post_init__()
 
     def __str__(self) -> str:
         """Default string representation."""
