@@ -5,6 +5,8 @@ import questionary
 
 from .phone import Phone, normalize_phone
 from .note import Note
+import readchar
+from datetime import datetime, date, timedelta
 from .email import Email
 from .address import Address
 
