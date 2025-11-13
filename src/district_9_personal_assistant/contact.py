@@ -186,7 +186,7 @@ class Birthday:
                     birthdays_this_week[name] = next_bday
 
             except ValueError:
-                print(f"Exeption: The format date is incorrect {name}: {bday_str}")
+                print(f"Invalid date format for {name}: '{bday_str}'. Expected format: DD.MM.YYYY")
                 continue
 
         return birthdays_this_week
