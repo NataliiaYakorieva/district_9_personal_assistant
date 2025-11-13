@@ -3,19 +3,41 @@ from typing import List
 
 import questionary
 
-from .phone import Phone, normalize_phone
+from .phone import Phone
 from .note import Note
 from .email import Email
 from .address import Address
+from .field import BaseField
+from .name import Name
 
 
 @dataclass
 class Contact:
-    name: str
+    name: Name
     phones: List[Phone] = field(default_factory=list)
     notes: List[Note] = field(default_factory=list)
     emails: List[Email] = field(default_factory=list)
     addresses: List[Address] = field(default_factory=list)
+
+    def add_field(self, field_instance: BaseField):
+        """Adds a field (Phone, Email, Address, Note) to the contact."""
+        try:
+            field_instance.validate()
+            if isinstance(field_instance, Phone):
+                if field_instance.is_main:
+                    self._reset_main_phone()
+                self.phones.append(field_instance)
+            elif isinstance(field_instance, Email):
+                self.emails.append(field_instance)
+            elif isinstance(field_instance, Address):
+                self.addresses.append(field_instance)
+            elif isinstance(field_instance, Note):
+                self.notes.append(field_instance)
+            else:
+                raise TypeError("Unsupported field type")
+            return f"{field_instance.__class__.__name__} added successfully."
+        except (ValueError, TypeError) as e:
+            return f"Error adding field: {e}"
 
     @staticmethod
     def _select_note_interactively(matches):
@@ -73,8 +95,12 @@ class Contact:
         new_number = questionary.text(
             "New phone number:",
             default=phone.number).ask()
-        phone.number = normalize_phone(new_number)
-        return f"Phone number updated to {new_number} for contact {self.name}."
+        try:
+            phone.number = new_number
+            phone.__post_init__()  # Re-run normalization and validation
+            return f"Phone number updated to {phone.number} for contact {self.name}."
+        except ValueError as e:
+            return f"Error updating phone: {e}"
 
     @_require_phone
     def delete_phone(self, phone):
@@ -87,11 +113,14 @@ class Contact:
             instruction="[International phone number, 8–15 digits, example: +4912345678901]"
         ).ask()
         is_main = questionary.confirm("Is this the main number?").ask()
-        phone = Phone(number=phone_number, is_main=is_main)
-        if phone.is_main:
-            self._reset_main_phone()
-        self.phones.append(phone)
-        return f"Phone {phone.number} added to contact {self.name}."
+        try:
+            phone = Phone(number=phone_number, is_main=is_main)
+            if phone.is_main:
+                self._reset_main_phone()
+            self.phones.append(phone)
+            return f"Phone {phone.number} added to contact {self.name}."
+        except ValueError as e:
+            return f"Error adding phone: {e}"
 
     def _reset_main_phone(self):
         for p in self.phones:
@@ -152,8 +181,12 @@ class Contact:
         new_address = questionary.text(
             "New email address:",
             default=email.address).ask().lower()
-        email.address = new_address
-        return f"Email updated to {new_address} for contact {self.name}."
+        try:
+            email.address = new_address
+            email.validate()
+            return f"Email updated to {new_address} for contact {self.name}."
+        except ValueError as e:
+            return f"Error updating email: {e}"
 
     @_require_email
     def delete_email(self, email):
@@ -162,9 +195,12 @@ class Contact:
 
     def add_email(self) -> str:
         email_address = questionary.text("Email address:").ask().lower()
-        email = Email(address=email_address)
-        self.emails.append(email)
-        return f"Email {email.address} added to contact {self.name}."
+        try:
+            email = Email(address=email_address)
+            self.emails.append(email)
+            return f"Email {email.address} added to contact {self.name}."
+        except ValueError as e:
+            return f"Error adding email: {e}"
 
     def show_emails(self) -> str:
         """
@@ -199,9 +235,12 @@ class Contact:
         title = questionary.text("Title:").ask()
         content = questionary.text("Content:").ask()
         tags = questionary.text("Tags (comma separated):").ask()
-        note = Note(content, title, tags)
-        self.notes.append(note)
-        return "Note added."
+        try:
+            note = Note(content, title, tags)
+            self.notes.append(note)
+            return "Note added."
+        except ValueError as e:
+            return f"Error adding note: {e}"
 
     def find_note(self):
         query = questionary.text(
@@ -230,9 +269,12 @@ class Contact:
             "Tags (comma separated):", default=", ".join(note.get_tags_list())
         ).ask()
 
-        note.update_note(new_content, new_tags, new_title)
-
-        return "Note updated."
+        try:
+            note.update_note(new_content, new_tags, new_title)
+            note.validate()
+            return "Note updated."
+        except ValueError as e:
+            return f"Error updating note: {e}"
 
     @_require_note
     def delete_note(self, note):
@@ -294,13 +336,15 @@ class Contact:
         new_zip = questionary.text(
             "New zip code:",
             default=address.zip_code).ask()
-        address.country = new_country
-        address.city = new_city
-        address.street_address = new_street
-        address.zip_code = new_zip
-        return (f"Address updated to {new_street}, {new_city}, {new_country}, {new_zip}" +
-                f" for contact {
-            self.name}.")
+        try:
+            address.country = new_country
+            address.city = new_city
+            address.street_address = new_street
+            address.zip_code = new_zip
+            address.__post_init__()
+            return (f"Address updated to {address} for contact {self.name}.")
+        except ValueError as e:
+            return f"Error updating address: {e}"
 
     @_require_address
     def delete_address(self, address):
@@ -315,15 +359,17 @@ class Contact:
         city = questionary.text("City:").ask()
         street_address = questionary.text("Street address:").ask()
         zip_code = questionary.text("Zip code:").ask()
-        address = Address(
-            country=country,
-            city=city,
-            street_address=street_address,
-            zip_code=zip_code
-        )
-        self.addresses.append(address)
-        return f"Address '{street_address}, {city}, {country}, {zip_code}' added to contact {
-            self.name}."
+        try:
+            address = Address(
+                country=country,
+                city=city,
+                street_address=street_address,
+                zip_code=zip_code
+            )
+            self.addresses.append(address)
+            return f"Address '{address}' added to contact {self.name}."
+        except ValueError as e:
+            return f"Error adding address: {e}"
 
     def show_addresses(self) -> str:
         """
