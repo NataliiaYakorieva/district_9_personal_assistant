@@ -4,10 +4,10 @@ from prompt_toolkit.completion import WordCompleter
 from difflib import get_close_matches
 import os
 
-# Файл для збереження даних
+"File for storing data"
 DATA_FILE = "data.json"
 
-# Ініціалізація даних
+"Data initialization"
 
 
 def load_data():
@@ -24,7 +24,7 @@ def save_data(data):
 
 data = load_data()
 
-# Словник команд
+"Dictionary of commands"
 COMMANDS = {
     'add contact': 'Add a contact',
     'list contacts': 'List all contacts',
@@ -42,7 +42,7 @@ COMMANDS = {
 
 command_completer = WordCompleter(list(COMMANDS.keys()), ignore_case=True)
 
-# --- Функції для роботи з контактами ---
+"Functions for working with contacts"
 
 
 def add_contact():
@@ -94,7 +94,8 @@ def delete_contact():
 def birthdays():
     print("🎂 (Demo) Birthday reminders not implemented yet.")
 
-# --- Функції для нотаток ---
+
+"Functions for working with notes"
 
 
 def add_note():
@@ -148,7 +149,7 @@ def exit_program():
     exit()
 
 
-# Словник функцій
+"Dictionary of command functions"
 COMMAND_FUNCTIONS = {
     'add contact': add_contact,
     'list contacts': list_contacts,
@@ -164,7 +165,7 @@ COMMAND_FUNCTIONS = {
     'exit': exit_program
 }
 
-# Підказки для команд
+"Command suggestion helper"
 
 
 def suggest_command(user_input):
@@ -177,6 +178,9 @@ def suggest_command(user_input):
         return matches[0]
     print("❌ Command not recognized.")
     return None
+
+
+"Main menu loop"
 
 
 def menu():
