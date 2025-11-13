@@ -2,9 +2,11 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+from .field import BaseField
+
 
 @dataclass
-class Note:
+class Note(BaseField):
     """
     Represents a note associated with a contact,
     including content, creation date, optional title, and tags.
@@ -13,11 +15,17 @@ class Note:
     title: Optional[str] = ""
     tags_string: Optional[str] = ""
     tags_list: List[str] = field(default_factory=list, init=False, repr=False)
+    creation_date: datetime = field(default_factory=datetime.now)
 
     def __post_init__(self):
-        self.creation_date = datetime.now()
         if self.tags_string:
             self.add_tags(self.tags_string)
+        super().__post_init__()
+
+    def validate(self) -> None:
+        """Validate that the note content is not empty."""
+        if not self.content or not self.content.strip():
+            raise ValueError("Note content cannot be empty.")
 
     def add_tags(self, tags_string: str):
         """
@@ -44,6 +52,19 @@ class Note:
 
     def get_tags_list(self) -> List[str]:
         return self.tags_list
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Note":
+        """Create a Note instance from a dictionary."""
+        if 'creation_date' in data and isinstance(data['creation_date'], str):
+            data['creation_date'] = datetime.fromisoformat(data['creation_date'])
+        return cls(**data)
+
+    def to_dict(self) -> dict:
+        """Converts the note to a dictionary, ensuring datetime is a string."""
+        data = super().to_dict()
+        data['creation_date'] = self.creation_date.isoformat()
+        return data
 
     def __str__(self):
         tags_str = ", ".join(

@@ -3,6 +3,8 @@ import re
 import urllib.parse
 import webbrowser
 
+from .field import BaseField
+
 # Allow letters/digits/space/dash; 2–20 chars
 ZIP_PATTERN = re.compile(r"^[A-Za-z0-9\- ]{2,20}$")
 
@@ -15,7 +17,7 @@ def _clean_text(value: str) -> str:
 
 
 @dataclass
-class Address:
+class Address(BaseField):
     """Represents a postal address.
 
     Normalization rules:
@@ -34,7 +36,9 @@ class Address:
         self.city = _clean_text(self.city).title()
         self.street_address = _clean_text(self.street_address).title()
         self.zip_code = _clean_text(self.zip_code).upper()
+        super().__post_init__()
 
+    def validate(self) -> None:
         if not ZIP_PATTERN.match(self.zip_code):
             raise ValueError(
                 "zip_code must contain only letters, digits, spaces or dashes "
@@ -57,15 +61,6 @@ class Address:
         query = urllib.parse.quote(self.full_address())
         url = base + query
         webbrowser.open(url)
-
-    def to_dict(self) -> dict:
-        """Convert address to a plain dict for saving."""
-        return {
-            "country": self.country,
-            "city": self.city,
-            "street_address": self.street_address,
-            "zip_code": self.zip_code,
-        }
 
     @classmethod
     def from_dict(cls, data: dict) -> "Address":

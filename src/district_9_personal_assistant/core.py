@@ -53,15 +53,15 @@ def run_personal_assistant():
             choices=commands_list,
             match_middle=True,
         ).ask()
-        # TODO We should use ARGS
+
         command, *args = parse_input(user_input)
 
         def handle_help():
             print(f"{commands_info}\n")
 
         def handle_exit():
-            print("Exit. Data saved.")
             book.save_to_file()
+            print("Exit. Data saved.")
 
         if active_contact is None:
             match command:

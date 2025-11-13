@@ -1,5 +1,7 @@
 import os
+from typing import Optional
 from .contact import Contact
+from .name import Name
 from dataclasses import dataclass, field
 import questionary
 import pickle
@@ -11,20 +13,24 @@ class AddressBook:
     Represents an address book containing contacts.
     """
     contacts: list = field(default_factory=list)
-    _active_contact: Contact or None = None
+    _active_contact: Optional[Contact] = None
 
     def add_contact(self):
         """Add a new contact to the address book."""
-        name = questionary.text("Contact name:").ask()
-        contact = Contact(name=name)
-        self.contacts.append(contact)
-        return f"Contact {name} added."
+        name_str = questionary.text("Contact name:").ask()
+        try:
+            name = Name(value=name_str)
+            contact = Contact(name=name)
+            self.contacts.append(contact)
+            return f"Contact {name.value} added."
+        except ValueError as e:
+            return f"Error adding contact: {e}"
 
     def find_contact(self):
         """Find a contact by name."""
         name = questionary.text("Contact name:").ask()
         for contact in self.contacts:
-            if contact.name.lower() == name.lower():
+            if contact.name.value.lower() == name.lower():
                 return contact
         return None
 
@@ -34,7 +40,7 @@ class AddressBook:
         if contact is None:
             return "Contact not found."
         self._active_contact = contact
-        return f"Active contact set to {contact.name}."
+        return f"Active contact set to {contact.name.value}."
 
     def back_to_book(self):
         """Return to the address book (unset active contact)."""
@@ -69,7 +75,7 @@ class AddressBook:
         """Reset main phone for the active contact."""
         contact = self._active_contact
         contact.reset_main_phone()
-        return f"Main phone number reset for contact {contact.name}."
+        return f"Main phone number reset for contact {contact.name.value}."
 
     def add_email(self):
         """Add an email to the active contact."""
