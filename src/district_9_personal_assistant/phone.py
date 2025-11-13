@@ -33,7 +33,7 @@ class Phone(BaseField):
 
     def validate(self) -> None:
         """
-        Validates the number according to the pattern `^\\+?[1-9][0-9]{7,14}$`
+        Validates the number according to the pattern `^\\+[1-9][0-9]{7,14}$`
         """
         if not PHONE_PATTERN.match(self.number):
             raise ValueError(f"Invalid phone number format: {self.number}")
