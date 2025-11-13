@@ -1,13 +1,14 @@
 import re
 from dataclasses import dataclass
 
-PHONE_PATTERN = re.compile(r'^\+?[1-9][0-9]{7,14}$')
+PHONE_PATTERN = re.compile(r'^\+[1-9][0-9]{7,14}$')
 
 
 def normalize_phone(phone_number: str) -> str:
     """
     Normalizes the number to international format:
     removes spaces, dashes, brackets.
+    Adds '+' prefix if not present to ensure international format.
     """
     if not phone_number:
         return ""
@@ -29,6 +30,6 @@ class Phone:
 
     def is_valid(self) -> bool:
         """
-        Validates the number according to the pattern ^+?[1-9][0-9]{7,14}$
+        Validates the number according to the pattern `^\\+?[1-9][0-9]{7,14}$`
         """
         return PHONE_PATTERN.match(self.number) is not None
