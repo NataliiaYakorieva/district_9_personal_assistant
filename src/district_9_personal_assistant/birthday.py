@@ -1,27 +1,32 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import random
-from .message import fail_message, success_message
+from dataclasses import dataclass
+from .field import BaseField
+from .message import fail_message
 
 
-class Birthday:
-
+@dataclass
+class Birthday(BaseField):
+    """Represents a contact's birthday with validation and age calculation."""
+    
+    value: str  # Birthday string in DD.MM.YYYY format
     DATE_FORMAT = "%d.%m.%Y"
 
-    def __init__(self, birthday_str: str):
+    def __post_init__(self):
+        # Parse and store the date object
         self._birthday = None
-        if birthday_str:
-            self._birthday = self._validate_date(birthday_str)
+        if self.value:
+            self._birthday = self._parse_date(self.value)
+        super().__post_init__()
 
     @property
     def birthday(self) -> date:
         return self._birthday
 
-    def _validate_date(self, date_str: str) -> date:
+    def _parse_date(self, date_str: str) -> date:
+        """Parse date string to date object."""
         try:
             birth_date = datetime.strptime(date_str, self.DATE_FORMAT).date()
-
-            if birth_date > date.today():
-                raise ValueError(fail_message("Birthday cannot be in future."))
             return birth_date
         except ValueError as e:
             raise ValueError(
@@ -29,6 +34,16 @@ class Birthday:
                 "Please use the next format DD.MM.YYYY. "
                 f"{e}"
             ))
+
+    def validate(self) -> None:
+        """Validates that the birthday is not in the future."""
+        if self._birthday and self._birthday > date.today():
+            raise ValueError(fail_message("Birthday cannot be in future."))
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Birthday":
+        """Create Birthday from a plain dict."""
+        return cls(value=data.get("value", ""))
 
     @property
     def age(self) -> int:
@@ -43,6 +58,9 @@ class Birthday:
         today = date.today()
         this_year_bday = self.birthday.replace(year=today.year)
         return today >= this_year_bday
+
+    def __str__(self) -> str:
+        return self.value if self.value else ""
 
     @classmethod
     def find_birthdays_this_week(cls, contacts: dict[str, str]) -> dict[str, date]:
@@ -88,7 +106,7 @@ class Birthday:
     def find_birthdays_this_day(
             cls,
             contacts: dict[str, str],
-            filepath: str = "greetings.txt"
+            filepath: str = "src/district_9_personal_assistant/constants/greetings.txt"
     ) -> dict[str, date]:
         today = date.today()
         birthdays_today = {}
