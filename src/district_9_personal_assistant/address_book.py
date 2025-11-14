@@ -1,10 +1,12 @@
 import os
+import random
 from typing import Optional
 from .contact import Contact
 from .name import Name
 from dataclasses import dataclass, field
 import questionary
 import pickle
+from datetime import date, timedelta
 
 from .selection import Selection
 from .message import fail_message, success_message
@@ -147,6 +149,14 @@ class AddressBook(Selection):
         """Set an address as main for the active contact."""
         return self._active_contact.set_main_address()
 
+    def add_birthday(self):
+        """Add a birthday to the active contact."""
+        return self._active_contact.add_birthday()
+
+    def show_birthday(self):
+        """Show the birthday of the active contact."""
+        return self._active_contact.show_birthday()
+
     def edit_contact(self):
         """Edit the name of an existing contact."""
         contact = self.find_contact()
@@ -179,6 +189,17 @@ class AddressBook(Selection):
             for idx, contact in enumerate(self.contacts)
         )
 
+    def show_birthdays_this_week(self):
+        """Find and display all contacts with birthdays this week."""
+        birthdays = self.find_birthdays_this_week(self.contacts)
+        if not birthdays:
+            return fail_message("No birthdays this week.")
+        
+        result = ["Birthdays this week:"]
+        for name, bday_date in birthdays.items():
+            result.append(f"  {name}: {bday_date.strftime('%d.%m.%Y')}")
+        return success_message("\n".join(result))
+
     @staticmethod
     def _get_file_path():
         """Get the file path for saving/loading the address book."""
@@ -200,3 +221,57 @@ class AddressBook(Selection):
                 return pickle.load(f)
         except FileNotFoundError:
             return cls()
+
+    @classmethod
+    def find_birthdays_this_week(cls, contacts: list) -> dict[str, date]:
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        birthdays_this_week = {}
+
+        for contact in contacts:
+            bday = getattr(contact, "birthday", None)
+            name = getattr(contact, "name", None)
+            if bday and bday.birthday:
+                next_bday = bday.birthday.replace(year=today.year)
+                if next_bday < today:
+                    next_bday = bday.birthday.replace(year=today.year + 1)
+                if start_of_week <= next_bday <= end_of_week:
+                    birthdays_this_week[name.value] = next_bday
+
+        return birthdays_this_week
+
+    @classmethod
+    def find_birthdays_this_day(cls, contacts: list, filepath: str = "greetings.txt") -> dict[str, date]:
+        today = date.today()
+        birthdays_today = {}
+
+        for contact in contacts:
+            bday = getattr(contact, "birthday", None)
+            name = getattr(contact, "name", None)
+            if bday and bday.birthday:
+                today_bday = bday.birthday.replace(year=today.year)
+                if today_bday == today:
+                    birthdays_today[name.value] = today_bday
+
+                    greetings_sug = questionary.confirm(
+                        f"Do you want me to suggest some greetings for {name.value}?"
+                    ).ask()
+                    if greetings_sug:
+                        try:
+                            with open(filepath, "r", encoding="utf-8") as file:
+                                greetings = [line.strip() for line in file if line.strip()]
+                            if not greetings:
+                                print("File is empty.")
+                                continue
+                            for i, greeting in enumerate(
+                                random.sample(greetings, min(3, len(greetings))), 1
+                            ):
+                                print(f"{i}. {greeting.replace('{name}', name.value)}")
+                        except Exception as e:
+                            print(f"Error reading greetings file: {e}")
+                    else:
+                        continue
+
+        return birthdays_today

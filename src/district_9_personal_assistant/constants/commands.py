@@ -14,6 +14,7 @@ class Commands(Enum):
     EDIT_CONTACT = "edit_contact"
     DELETE_CONTACT = "delete_contact"
     SHOW_CONTACTS = "show_contacts"
+    FIND_BIRTHDAYS_THIS_WEEK = "find_birthdays_this_week"
 
     # phone
     ADD_PHONE = "add_phone"
@@ -44,6 +45,10 @@ class Commands(Enum):
     SHOW_ADDRESSES = "show_addresses"
     SET_MAIN_ADDRESS = "set_main_address"
 
+    # birthday
+    ADD_BIRTHDAY = "add_birthday"
+    SHOW_BIRTHDAY = "show_birthday"
+
 
 book_commands_list = [
     Commands.ADD_CONTACT.value,
@@ -52,6 +57,7 @@ book_commands_list = [
     Commands.EDIT_CONTACT.value,
     Commands.DELETE_CONTACT.value,
     Commands.SHOW_CONTACTS.value,
+    Commands.FIND_BIRTHDAYS_THIS_WEEK.value,
     Commands.EXIT.value,
     Commands.HELP.value,
     Commands.BACK_TO_BOOK.value
@@ -83,6 +89,9 @@ contact_commands_list = [
     Commands.DELETE_ADDRESS.value,
     Commands.SHOW_ADDRESSES.value,
     Commands.SET_MAIN_ADDRESS.value,
+    # birthday
+    Commands.ADD_BIRTHDAY.value,
+    Commands.SHOW_BIRTHDAY.value,
     # shared
     Commands.EXIT.value,
     Commands.HELP.value,
@@ -158,5 +167,12 @@ commands_info = (
     "    - contact name (required): Name of the contact whose addresses to list\n"
     "  set_main_address\n"
     "    - contact name (required): Name of the contact to set the main address\n"
+    "  add_birthday\n"
+    "    - contact name (required): Name of the contact to add a birthday to\n"
+    "    - birthday (required): Birthday in DD.MM.YYYY format\n"
+    "  show_birthday\n"
+    "    - contact name (required): Name of the contact whose birthday to display\n"
+    "  find_birthdays_this_week\n"
+    "    - Find all contacts with birthdays in the current week\n"
     "  exit\n"
     "    - Exit and save data\n")
