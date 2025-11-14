@@ -1,6 +1,7 @@
 from .address_book import AddressBook
 import questionary
 from .constants.commands import book_commands_list, contact_commands_list, commands_info, Commands
+from .message import fail_message, success_message
 
 
 def input_error(func):
@@ -12,9 +13,9 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except AttributeError:
-            return "Error: Contact not found"
+            return fail_message("Error: Contact not found")
         except (KeyError, ValueError, IndexError) as e:
-            return f"Error: {str(e)}"
+            return fail_message(f"Error: {str(e)}")
     return wrapper
 
 
@@ -29,13 +30,6 @@ def parse_input(user_input):
     return cmd, *args
 
 
-def get_current_commands_list(active_contact):
-    if active_contact is None:
-        return book_commands_list
-    else:
-        return contact_commands_list
-
-
 def run_personal_assistant():
     book = AddressBook.load_from_file()
     print("Welcome to the Personal Assistant!")
@@ -46,7 +40,7 @@ def run_personal_assistant():
         commands_list = get_current_commands_list(active_contact)
 
         if active_contact is not None:
-            print(f"Working on the contact: {active_contact.name}")
+            print(success_message(f"Working on the contact: {active_contact.name}"))
 
         user_input = questionary.autocomplete(
             "Enter a command:",
@@ -57,11 +51,11 @@ def run_personal_assistant():
         command, *args = parse_input(user_input)
 
         def handle_help():
-            print(f"{commands_info}\n")
+            print(success_message(f"{commands_info}\n"))
 
         def handle_exit():
             book.save_to_file()
-            print("Exit. Data saved.")
+            print(success_message("Exit. Data saved."))
 
         if active_contact is None:
             match command:
@@ -83,7 +77,7 @@ def run_personal_assistant():
                     handle_exit()
                     break
                 case _:
-                    print("Unknown command.")
+                    print(fail_message("Unknown command."))
         else:
             match command:
                 case Commands.ADD_PHONE.value:
@@ -136,4 +130,4 @@ def run_personal_assistant():
                 case Commands.BACK_TO_BOOK.value:
                     print(book.back_to_book())
                 case _:
-                    print("Unknown command.")
+                    print(fail_message("Unknown command."))

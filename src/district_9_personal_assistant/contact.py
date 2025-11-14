@@ -10,6 +10,7 @@ from .address import Address
 from .field import BaseField
 from .name import Name
 from .selection import Selection
+from .message import fail_message, success_message
 
 
 @dataclass
@@ -35,9 +36,9 @@ class Contact(Selection):
                 self.notes.append(field_instance)
             else:
                 raise TypeError("Unsupported field type")
-            return f"{field_instance.__class__.__name__} added successfully."
+            return fail_message(f"{field_instance.__class__.__name__} added successfully.")
         except (ValueError, TypeError) as e:
-            return f"Error adding field: {e}"
+            return fail_message(f"Error adding field: {e}")
 
     @staticmethod
     def _require_note(func):
@@ -70,9 +71,9 @@ class Contact(Selection):
         new_number = questionary.text("New phone number:", default=phone.number).ask()
         try:
             phone.update({"number": new_number})
-            return f"Phone number updated to {phone.number}."
+            return fail_message(f"Phone number updated to {phone.number}.")
         except ValueError as e:
-            return f"Error: {e}"
+            return fail_message(f"Error: {e}")
 
     @_require_phone
     def delete_phone(self, phone):
@@ -90,9 +91,9 @@ class Contact(Selection):
             if phone.is_main:
                 self._reset_main_phone()
             self.phones.append(phone)
-            return f"Phone {phone.number} added to contact {self.name}."
+            return success_message(f"Phone {phone.number} added to contact {self.name}.")
         except ValueError as e:
-            return f"Error adding phone: {e}"
+            return fail_message(f"Error adding phone: {e}")
 
     def _reset_main_phone(self):
         for p in self.phones:
@@ -105,14 +106,14 @@ class Contact(Selection):
         """
         self._reset_main_phone()
         phone.is_main = True
-        return f"Main number is set to: {phone.number}"
+        return success_message(f"Main number is set to: {phone.number}")
 
     def show_phones(self) -> str:
         """
         Show all phone numbers for the contact.
         """
         if not self.phones:
-            return "No phones found."
+            return fail_message("No phones found.")
         out = []
         for p in self.phones:
             label = "[main]" if p.is_main else ""
@@ -124,7 +125,7 @@ class Contact(Selection):
         def wrapper(self, *args, **kwargs):
             email = self.find_email()
             if email is None:
-                return "No matching email found."
+                return fail_message("No matching email found.")
             return func(self, email, *args, **kwargs)
         return wrapper
 
@@ -141,30 +142,30 @@ class Contact(Selection):
         new_address = questionary.text("New email address:", default=email.address).ask()
         try:
             email.update({"address": new_address})
-            return f"Email updated to {email.address}."
+            return success_message(f"Email updated to {email.address}.")
         except ValueError as e:
-            return f"Error: {e}"
+            return fail_message(f"Error: {e}")
 
     @_require_email
     def delete_email(self, email):
         self.emails.remove(email)
-        return f"Email {email.address} deleted from contact {self.name}."
+        return success_message(f"Email {email.address} deleted from contact {self.name}.")
 
     def add_email(self) -> str:
         email_address = questionary.text("Email address:").ask().lower()
         try:
             email = Email(address=email_address)
             self.emails.append(email)
-            return f"Email {email.address} added to contact {self.name}."
+            return success_message(f"Email {email.address} added to contact {self.name}.")
         except ValueError as e:
-            return f"Error adding email: {e}"
+            return fail_message(f"Error adding email: {e}")
 
     def show_emails(self) -> str:
         """
         Show all email addresses for the contact.
         """
         if not self.emails:
-            return "No emails found."
+            return fail_message("No emails found.")
         return "; ".join(email.address for email in self.emails)
 
     @_require_email
@@ -182,11 +183,11 @@ class Contact(Selection):
         Show all notes for the contact.
         """
         if not self.notes:
-            return "No notes available."
+            return fail_message("No notes available.")
         out = []
         for note in self.notes:
             out.append(f"\n{note}\n")
-        return "All notes:\n".join(out)
+        return success_message("All notes:\n".join(out))
 
     def add_note(self):
         title = questionary.text("Title:").ask()
@@ -195,9 +196,9 @@ class Contact(Selection):
         try:
             note = Note(content, title, tags)
             self.notes.append(note)
-            return "Note added."
+            return success_message("Note added.")
         except ValueError as e:
-            return f"Error adding note: {e}"
+            return fail_message(f"Error adding note: {e}")
 
     def find_note(self):
         def display_note(note):
@@ -225,7 +226,7 @@ class Contact(Selection):
     @_require_note
     def delete_note(self, note):
         self.notes.remove(note)
-        return "Note deleted."
+        return success_message("Note deleted.")
 
     def find_by_tag(self) -> str:
         """
@@ -316,4 +317,4 @@ class Contact(Selection):
         for a in self.addresses:
             a.is_main = False
         address.is_main = True
-        return f"Main address set to {address} for contact {self.name}."
+        return success_message(f"Main address set to {address} for contact {self.name}.")
