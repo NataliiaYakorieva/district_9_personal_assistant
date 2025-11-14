@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 import random
+from .message import fail_message, success_message
 
 
 class Birthday:
@@ -20,14 +21,14 @@ class Birthday:
             birth_date = datetime.strptime(date_str, self.DATE_FORMAT).date()
 
             if birth_date > date.today():
-                raise ValueError("Birthday cannot be in future.")
+                raise ValueError(fail_message("Birthday cannot be in future."))
             return birth_date
         except ValueError as e:
             raise ValueError(
-                f"Data format is incorrect: '{date_str}'. "
+                fail_message(f"Data format is incorrect: '{date_str}'. "
                 "Please use the next format DD.MM.YYYY. "
                 f"{e}"
-            )
+            ))
 
     @property
     def age(self) -> int:
@@ -63,9 +64,9 @@ class Birthday:
 
             except ValueError:
                 print(
-                    f"Invalid date format for {name}: '{bday_str}'. "
+                    fail_message(f"Invalid date format for {name}: '{bday_str}'. "
                     "Expected format: DD.MM.YYYY"
-                )
+                ))
                 continue
 
         return birthdays_this_week
@@ -76,12 +77,12 @@ class Birthday:
             birth_date = datetime.strptime(
                 birthday_str, cls.DATE_FORMAT).date()
             if birth_date > date.today():
-                raise ValueError("Birthday cannot be in future.")
+                raise ValueError(fail_message("Birthday cannot be in future."))
             contacts[name] = birthday_str
         except ValueError as e:
-            raise ValueError(
+            raise ValueError(fail_message(
                 f"Cannot add birthday for '{name}': {e}"
-            )
+            ))
 
     @classmethod
     def find_birthdays_this_day(
@@ -109,7 +110,7 @@ class Birthday:
                                      for line in file if line.strip()]
 
                     if not greetings:
-                        print("File is empty.")
+                        print(fail_message("File is empty."))
                         return
 
                     for i, greeting in enumerate(
@@ -121,9 +122,9 @@ class Birthday:
 
             except ValueError:
                 print(
-                    f"Invalid date format for {name}: '{bday_str}'. "
+                    fail_message(f"Invalid date format for {name}: '{bday_str}'. "
                     "Expected format: DD.MM.YYYY"
-                )
+                ))
                 continue
 
         return birthdays_today

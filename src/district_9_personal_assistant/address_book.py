@@ -7,6 +7,7 @@ import questionary
 import pickle
 
 from .selection import Selection
+from .message import fail_message, success_message
 
 
 @dataclass
@@ -21,14 +22,17 @@ class AddressBook(Selection):
         """Add a new contact to the address book."""
         name_str = questionary.text("Contact name:").ask()
         if any(contact.name.value.lower() == name_str.lower() for contact in self.contacts):
-            return "Contact with this name already exists. Please enter a different name."
+            return fail_message(
+                "Contact with this name already exists. "
+                "Please enter a different name."
+            )
         try:
             name = Name(value=name_str)
             contact = Contact(name=name)
             self.contacts.append(contact)
-            return f"Contact {name.value} added."
+            return success_message(f"Contact {name.value} added.")
         except ValueError as e:
-            return f"Error adding contact: {e}"
+            return fail_message(f"Error adding contact: {e}")
 
     def find_contact(self):
         """Find a contact by name or by interactive selection."""
@@ -46,9 +50,9 @@ class AddressBook(Selection):
             "Select contact:",
         )
         if contact is None:
-            return "Contact not found."
+            return fail_message("Contact not found.")
         self._active_contact = contact
-        return f"Active contact set to {contact.name.value}."
+        return success_message(f"Active contact set to {contact.name.value}.")
 
     def back_to_book(self):
         """Return to the address book (unset active contact)."""
@@ -147,29 +151,29 @@ class AddressBook(Selection):
         """Edit the name of an existing contact."""
         contact = self.find_contact()
         if contact is None:
-            return "No contacts found."
+            return fail_message("No contacts found.")
         new_name = questionary.text("Enter new name for:", default=contact.name.value).ask()
         if not new_name:
-            return "No new name provided."
+            return fail_message("No new name provided.")
         if any(c.name.value.lower() == new_name.lower() for c in self.contacts if c != contact):
-            return "Another contact with this name already exists."
+            return fail_message("Another contact with this name already exists.")
         contact.name.value = new_name
-        return f"Contact name updated to {new_name}."
+        return success_message(f"Contact name updated to {new_name}.")
 
     def delete_contact(self):
         """Remove a contact from the address book."""
         contact = self.find_contact()
         if contact is None:
-            return "No contacts found."
+            return fail_message("No contacts found.")
         self.contacts.remove(contact)
         if self._active_contact == contact:
             self._active_contact = None
-        return f"Contact {contact.name.value} removed."
+        return success_message(f"Contact {contact.name.value} removed.")
 
     def show_contacts(self):
         """Show all contacts in the address book."""
         if not self.contacts:
-            return "No contacts found."
+            return fail_message("No contacts found.")
         return "\n".join(
             f"{idx + 1}. {contact.name.value}"
             for idx, contact in enumerate(self.contacts)
