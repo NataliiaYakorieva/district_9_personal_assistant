@@ -37,7 +37,7 @@ class Birthday(BaseField):
     def validate(self) -> None:
         """Validates that the birthday is not in the future."""
         if self._birthday and self._birthday > date.today():
-            raise ValueError(fail_message("Birthday cannot be in future."))
+            raise ValueError(fail_message("Birthday cannot be in the future."))
 
     @classmethod
     def from_dict(cls, data: dict) -> "Birthday":
