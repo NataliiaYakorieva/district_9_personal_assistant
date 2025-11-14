@@ -5,16 +5,15 @@ import questionary
 
 from .phone import Phone
 from .note import Note
-import readchar
-from datetime import datetime, date, timedelta
 from .email import Email
 from .address import Address
 from .field import BaseField
 from .name import Name
+from .selection import Selection
 
 
 @dataclass
-class Contact:
+class Contact(Selection):
     name: Name
     phones: List[Phone] = field(default_factory=list)
     notes: List[Note] = field(default_factory=list)
@@ -41,19 +40,6 @@ class Contact:
             return f"Error adding field: {e}"
 
     @staticmethod
-    def _select_note_interactively(matches):
-        choices = [
-            f"{idx}: {note.title or note.content[:20]}" for idx, note in matches]
-        selected = questionary.select("Select note:", choices=choices).ask()
-        if not selected:
-            return None
-        selected_idx = int(selected.split(":")[0])
-        for idx, note in matches:
-            if idx == selected_idx:
-                return note
-        return None
-
-    @staticmethod
     def _require_note(func):
         def wrapper(self, *args, **kwargs):
             note = self.find_note()
@@ -61,18 +47,6 @@ class Contact:
                 return "No matching note found."
             return func(self, note, *args, **kwargs)
         return wrapper
-
-    @staticmethod
-    def _select_phone_interactively(phones):
-        choices = [
-            f"{idx}: {
-                phone.number}" for idx,
-            phone in enumerate(phones)]
-        selected = questionary.select("Select phone:", choices=choices).ask()
-        if not selected:
-            return None
-        selected_idx = int(selected.split(":")[0])
-        return phones[selected_idx]
 
     @staticmethod
     def _require_phone(func):
@@ -84,12 +58,11 @@ class Contact:
         return wrapper
 
     def find_phone(self):
-        """
-        Find a phone by interactive selection.
-        """
-        if not self.phones:
-            return None
-        return self._select_phone_interactively(self.phones)
+        return self.select_item_interactively(
+            self.phones,
+            lambda p: p.number,
+            "Select phone:",
+        )
 
     @_require_phone
     def edit_phone(self, phone: Phone):
@@ -147,18 +120,6 @@ class Contact:
         return "; ".join(out)
 
     @staticmethod
-    def _select_email_interactively(emails):
-        choices = [
-            f"{idx}: {
-                email.address}" for idx,
-            email in enumerate(emails)]
-        selected = questionary.select("Select email:", choices=choices).ask()
-        if not selected:
-            return None
-        selected_idx = int(selected.split(":")[0])
-        return emails[selected_idx]
-
-    @staticmethod
     def _require_email(func):
         def wrapper(self, *args, **kwargs):
             email = self.find_email()
@@ -168,12 +129,11 @@ class Contact:
         return wrapper
 
     def find_email(self):
-        """
-        Find an email by interactive selection.
-        """
-        if not self.emails:
-            return None
-        return self._select_email_interactively(self.emails)
+        return self.select_item_interactively(
+            self.emails,
+            lambda e: e.address,
+            "Select email:",
+        )
 
     @_require_email
     def edit_email(self, email: Email):
@@ -240,27 +200,16 @@ class Contact:
             return f"Error adding note: {e}"
 
     def find_note(self):
-        query = questionary.text(
-            "Enter search query (text, tag, or title):").ask().strip().lower()
-        matches = []
-        for idx, note in enumerate(self.notes):
-            if (
-                    query in note.content.lower()
-                    or query in note.title.lower()
-                    or any(query in tag for tag in note.get_tags_list())
-            ):
-                matches.append((idx, note))
-        if not matches:
-            return None
-        if len(matches) == 1:
-            return matches[0][1]
-
-        note = self._select_note_interactively(matches)
-        return note
+        def display_note(note):
+            return note.title or note.content[:20]
+        return self.select_item_interactively(
+            self.notes,
+            display_note,
+            "Select note:",
+        )
 
     @_require_note
     def edit_note(self, note: Note):
-        """Edit the selected note."""
         new_data = {
             "title": questionary.text("New title:", default=note.title).ask(),
             "content": questionary.text("New content:", default=note.content).ask(),
@@ -268,7 +217,7 @@ class Contact:
                 "New tags (comma-separated):", default=note.tags_string).ask(),
         }
         try:
-            note.update(new_data)
+            note.update_note(**new_data)
             return "Note updated successfully."
         except ValueError as e:
             return f"Error: {e}"
@@ -295,17 +244,6 @@ class Contact:
         return "\n".join(f"{str(note)}\n" for note in found_notes)
 
     @staticmethod
-    def _select_address_interactively(addresses):
-        choices = [
-            f"{idx}: {address}" for idx,
-            address in enumerate(addresses)]
-        selected = questionary.select("Select address:", choices=choices).ask()
-        if not selected:
-            return None
-        selected_idx = int(selected.split(":")[0])
-        return addresses[selected_idx]
-
-    @staticmethod
     def _require_address(func):
         def wrapper(self, *args, **kwargs):
             address = self.find_address()
@@ -315,12 +253,11 @@ class Contact:
         return wrapper
 
     def find_address(self):
-        """
-        Find an address by interactive selection.
-        """
-        if not self.addresses:
-            return None
-        return self._select_address_interactively(self.addresses)
+        return self.select_item_interactively(
+            self.addresses,
+            str,
+            "Select address:",
+        )
 
     @_require_address
     def edit_address(self, address: Address):

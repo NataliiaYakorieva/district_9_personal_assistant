@@ -6,9 +6,11 @@ from dataclasses import dataclass, field
 import questionary
 import pickle
 
+from .selection import Selection
+
 
 @dataclass
-class AddressBook:
+class AddressBook(Selection):
     """
     Represents an address book containing contacts.
     """
@@ -18,6 +20,8 @@ class AddressBook:
     def add_contact(self):
         """Add a new contact to the address book."""
         name_str = questionary.text("Contact name:").ask()
+        if any(contact.name.value.lower() == name_str.lower() for contact in self.contacts):
+            return "Contact with this name already exists. Please enter a different name."
         try:
             name = Name(value=name_str)
             contact = Contact(name=name)
@@ -27,16 +31,20 @@ class AddressBook:
             return f"Error adding contact: {e}"
 
     def find_contact(self):
-        """Find a contact by name."""
-        name = questionary.text("Contact name:").ask()
-        for contact in self.contacts:
-            if contact.name.value.lower() == name.lower():
-                return contact
-        return None
+        """Find a contact by name or by interactive selection."""
+        return self.select_item_interactively(
+            self.contacts,
+            lambda c: c.name.value,
+            "Select contact:"
+        )
 
     def select_active_contact(self):
-        """Set the active contact for further operations."""
-        contact = self.find_contact()
+        """Set the active contact for further operations using interactive selection."""
+        contact = self.select_item_interactively(
+            self.contacts,
+            lambda c: c.name.value,
+            "Select contact:",
+        )
         if contact is None:
             return "Contact not found."
         self._active_contact = contact
@@ -70,12 +78,6 @@ class AddressBook:
     def show_phones(self):
         """Show all phones of the active contact."""
         return self._active_contact.show_phones()
-
-    def reset_main_phone(self):
-        """Reset main phone for the active contact."""
-        contact = self._active_contact
-        contact.reset_main_phone()
-        return f"Main phone number reset for contact {contact.name.value}."
 
     def add_email(self):
         """Add an email to the active contact."""
@@ -140,6 +142,38 @@ class AddressBook:
     def set_main_address(self):
         """Set an address as main for the active contact."""
         return self._active_contact.set_main_address()
+
+    def edit_contact(self):
+        """Edit the name of an existing contact."""
+        contact = self.find_contact()
+        if contact is None:
+            return "No contacts found."
+        new_name = questionary.text("Enter new name for:", default=contact.name.value).ask()
+        if not new_name:
+            return "No new name provided."
+        if any(c.name.value.lower() == new_name.lower() for c in self.contacts if c != contact):
+            return "Another contact with this name already exists."
+        contact.name.value = new_name
+        return f"Contact name updated to {new_name}."
+
+    def delete_contact(self):
+        """Remove a contact from the address book."""
+        contact = self.find_contact()
+        if contact is None:
+            return "No contacts found."
+        self.contacts.remove(contact)
+        if self._active_contact == contact:
+            self._active_contact = None
+        return f"Contact {contact.name.value} removed."
+
+    def show_contacts(self):
+        """Show all contacts in the address book."""
+        if not self.contacts:
+            return "No contacts found."
+        return "\n".join(
+            f"{idx + 1}. {contact.name.value}"
+            for idx, contact in enumerate(self.contacts)
+        )
 
     @staticmethod
     def _get_file_path():

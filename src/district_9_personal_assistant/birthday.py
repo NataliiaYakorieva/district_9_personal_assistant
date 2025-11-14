@@ -24,7 +24,10 @@ class Birthday:
             return birth_date
         except ValueError as e:
             raise ValueError(
-                f"Data format is incorrect: '{date_str}'. Please use the next format DD.MM.YYYY. {e}")
+                f"Data format is incorrect: '{date_str}'. "
+                "Please use the next format DD.MM.YYYY. "
+                f"{e}"
+            )
 
     @property
     def age(self) -> int:
@@ -60,7 +63,9 @@ class Birthday:
 
             except ValueError:
                 print(
-                    f"Invalid date format for {name}: '{bday_str}'. Expected format: DD.MM.YYYY")
+                    f"Invalid date format for {name}: '{bday_str}'. "
+                    "Expected format: DD.MM.YYYY"
+                )
                 continue
 
         return birthdays_this_week
@@ -74,10 +79,16 @@ class Birthday:
                 raise ValueError("Birthday cannot be in future.")
             contacts[name] = birthday_str
         except ValueError as e:
-            raise ValueError(f"Cannot add birthday for '{name}': {e}")
+            raise ValueError(
+                f"Cannot add birthday for '{name}': {e}"
+            )
 
     @classmethod
-    def find_birthdays_this_day(cls, contacts: dict[str, str], filepath: str = "greetings.txt") -> dict[str, date]:
+    def find_birthdays_this_day(
+            cls,
+            contacts: dict[str, str],
+            filepath: str = "greetings.txt"
+    ) -> dict[str, date]:
         today = date.today()
         birthdays_today = {}
 
@@ -101,14 +112,18 @@ class Birthday:
                         print("File is empty.")
                         return
 
-                    for i, greeting in enumerate(random.sample(greetings, min(3, len(greetings))), 1):
+                    for i, greeting in enumerate(
+                        random.sample(greetings, min(3, len(greetings))), 1
+                    ):
                         print(f"{i}. {greeting.replace('{name}', name)}")
                 else:
                     continue
 
             except ValueError:
                 print(
-                    f"Invalid date format for {name}: '{bday_str}'. Expected format: DD.MM.YYYY")
+                    f"Invalid date format for {name}: '{bday_str}'. "
+                    "Expected format: DD.MM.YYYY"
+                )
                 continue
 
         return birthdays_today

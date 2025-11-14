@@ -11,6 +11,9 @@ class Commands(Enum):
     FIND_CONTACT = "find_contact"
     SELECT_ACTIVE_CONTACT = "select_active_contact"
     BACK_TO_BOOK = "back_to_book"
+    EDIT_CONTACT = "edit_contact"
+    DELETE_CONTACT = "delete_contact"
+    SHOW_CONTACTS = "show_contacts"
 
     # phone
     ADD_PHONE = "add_phone"
@@ -46,8 +49,12 @@ book_commands_list = [
     Commands.ADD_CONTACT.value,
     Commands.FIND_CONTACT.value,
     Commands.SELECT_ACTIVE_CONTACT.value,
+    Commands.EDIT_CONTACT.value,
+    Commands.DELETE_CONTACT.value,
+    Commands.SHOW_CONTACTS.value,
     Commands.EXIT.value,
-    Commands.HELP.value
+    Commands.HELP.value,
+    Commands.BACK_TO_BOOK.value
 ]
 
 contact_commands_list = [
