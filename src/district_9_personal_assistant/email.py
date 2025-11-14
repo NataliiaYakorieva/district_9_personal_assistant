@@ -19,7 +19,7 @@ class Email(BaseField):
         if not self.address:
             raise ValueError("Email address cannot be empty.")
 
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,3}$'
         if not re.match(pattern, self.address):
             raise ValueError(f"Invalid email address: {self.address}")
 
