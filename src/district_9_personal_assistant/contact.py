@@ -325,10 +325,24 @@ class Contact(Selection):
         """
         Add or update the birthday for this contact.
         """
-        bday = questionary.text("Birthday:").ask()
+        bday = questionary.text(
+            "Set Birthday:",
+            instruction="[Format: DD.MM.YYYY, e.g., 15.03.1990]"
+        ).ask()
         try:
-            birthday_obj = Birthday(bday)
+            birthday_obj = Birthday(value=bday)
             self.birthday = birthday_obj
             return success_message(f"Birthday set to {birthday_obj.birthday.strftime(Birthday.DATE_FORMAT)} for contact {self.name.value}.")
         except ValueError as e:
             return fail_message(f"Cannot add birthday: {e}")
+
+    def show_birthday(self) -> str:
+        """
+        Display the birthday and age for this contact.
+        """
+        if not self.birthday:
+            return fail_message("No birthday set for this contact.")
+        
+        birthday_date = self.birthday.birthday.strftime(Birthday.DATE_FORMAT)
+        age = self.birthday.age
+        return success_message(f"{self.name.value}'s birthday is {birthday_date} (Age: {age})")
