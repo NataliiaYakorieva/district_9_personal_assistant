@@ -1,47 +1,35 @@
 import re
-from dataclasses import dataclass
 
-from .field import BaseField
-
-PHONE_PATTERN = re.compile(r'^\+[1-9][0-9]{7,14}$')
+# Додаємо правильний шаблон для PHONE_PATTERN:
+PHONE_PATTERN = re.compile(r'^\+\d{8,15}$')
 
 
-def normalize_phone(phone_number: str) -> str:
+def validate(self) -> None:
     """
-    Normalizes the number to international format:
-    removes spaces, dashes, brackets.
-    Adds '+' prefix if not present to ensure international format.
+    Validates the phone number:
+    - Must start with '+' followed by 8–15 digits
+    - Detects and explains common mistakes
     """
-    if not phone_number:
-        return ""
-    cleaned = re.sub(r'[^\d+]', '', phone_number)
-    # If no plus but number is in international format — add +
-    if cleaned and cleaned[0] != '+':
-        cleaned = '+' + cleaned
-    return cleaned
+    if not self.number:
+        raise ValueError("Phone number cannot be empty.")
 
-
-@dataclass
-class Phone(BaseField):
-    number: str
-    is_main: bool = False
-
-    def __post_init__(self):
-        # Always normalize the number upon initialization
-        self.number = normalize_phone(self.number)
-        super().__post_init__()
-
-    def validate(self) -> None:
-        """
-        Validates the number according to the pattern `^\\+[1-9][0-9]{7,14}$`
-        """
-        if not PHONE_PATTERN.match(self.number):
-            raise ValueError(f"Invalid phone number format: {self.number}")
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "Phone":
-        """Create Phone from a plain dict."""
-        return cls(**data)
-
-    def __str__(self) -> str:
-        return self.number
+    if not PHONE_PATTERN.fullmatch(self.number):
+        if re.search(r'[a-zA-Z]', self.number):
+            raise ValueError(
+                f"Phone number contains letters: '{self.number}'. "
+                "Please remove any accidental text or typos."
+            )
+        if re.search(r'[^\d+]', self.number):
+            raise ValueError(
+                f"Phone number contains invalid symbols: '{self.number}'. "
+                "Only digits and a leading '+' are allowed."
+            )
+        if not self.number.startswith('+'):
+            raise ValueError(
+                f"Phone number missing '+' prefix: '{self.number}'. "
+                "International format should start with '+'."
+            )
+        raise ValueError(
+            f"Invalid phone number format: '{self.number}'. "
+            "Expected format: + followed by 8–15 digits, starting with non-zero."
+        )
