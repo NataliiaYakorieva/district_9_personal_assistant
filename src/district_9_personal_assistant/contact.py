@@ -71,7 +71,7 @@ class Contact(Selection):
         new_number = questionary.text("New phone number:", default=phone.number).ask()
         try:
             phone.update({"number": new_number})
-            return fail_message(f"Phone number updated to {phone.number}.")
+            return success_message(f"Phone number updated to {phone.number}.")
         except ValueError as e:
             return fail_message(f"Error: {e}")
 

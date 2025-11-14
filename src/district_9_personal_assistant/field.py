@@ -41,12 +41,27 @@ class BaseField(ABC):
         if not is_dataclass(self):
             raise TypeError("update() is only supported for dataclass instances.")
 
+        old_values = {}
+        has_changes = False
         for field_info in fields(self):
             if field_info.name in new_data:
-                setattr(self, field_info.name, new_data[field_info.name])
+                old_value = getattr(self, field_info.name)
+                new_value = new_data[field_info.name]
+                old_values[field_info.name] = old_value
+                if old_value != new_value:
+                    has_changes = True
+                setattr(self, field_info.name, new_value)
+        
+        if not has_changes:
+            raise ValueError("No changes detected. The new value is the same as the current value.")
 
-        # Re-run normalization and validation after updating fields.
-        self.validate()
+        # If validation fails, restore the old values
+        try:
+            self.validate()
+        except (ValueError, TypeError) as e:
+            for field_name, old_value in old_values.items():
+                setattr(self, field_name, old_value)
+            raise
 
     def __str__(self) -> str:
         """Default string representation."""
