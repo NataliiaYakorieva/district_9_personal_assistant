@@ -1,6 +1,5 @@
 import re
 
-# Додаємо правильний шаблон для PHONE_PATTERN:
 PHONE_PATTERN = re.compile(r'^\+\d{8,15}$')
 
 
