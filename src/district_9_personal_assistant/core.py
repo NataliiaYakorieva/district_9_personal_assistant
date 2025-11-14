@@ -30,6 +30,13 @@ def parse_input(user_input):
     return cmd, *args
 
 
+def get_current_commands_list(active_contact):
+    if active_contact is None:
+        return book_commands_list
+    else:
+        return contact_commands_list
+
+
 def run_personal_assistant():
     book = AddressBook.load_from_file()
     print("Welcome to the Personal Assistant!")
