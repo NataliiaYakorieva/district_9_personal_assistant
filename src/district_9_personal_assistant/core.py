@@ -58,7 +58,7 @@ def run_personal_assistant():
         command, *args = parse_input(user_input)
 
         def handle_help():
-            print(success_message(f"{commands_info}\n"))
+            print(f"{commands_info}\n")
 
         def handle_exit():
             book.save_to_file()

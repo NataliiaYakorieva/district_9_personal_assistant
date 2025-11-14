@@ -187,7 +187,7 @@ class Contact(Selection):
         out = []
         for note in self.notes:
             out.append(f"\n{note}\n")
-        return success_message("All notes:\n".join(out))
+        return "All notes:\n".join(out)
 
     def add_note(self):
         title = questionary.text("Title:").ask()
