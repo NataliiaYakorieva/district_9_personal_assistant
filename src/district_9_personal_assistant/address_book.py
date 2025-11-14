@@ -149,6 +149,14 @@ class AddressBook(Selection):
         """Set an address as main for the active contact."""
         return self._active_contact.set_main_address()
 
+    def add_birthday(self):
+        """Add a birthday to the active contact."""
+        return self._active_contact.add_birthday()
+
+    def show_birthday(self):
+        """Show the birthday of the active contact."""
+        return self._active_contact.show_birthday()
+
     def edit_contact(self):
         """Edit the name of an existing contact."""
         contact = self.find_contact()
@@ -180,6 +188,17 @@ class AddressBook(Selection):
             f"{idx + 1}. {contact.name.value}"
             for idx, contact in enumerate(self.contacts)
         )
+
+    def show_birthdays_this_week(self):
+        """Find and display all contacts with birthdays this week."""
+        birthdays = self.find_birthdays_this_week(self.contacts)
+        if not birthdays:
+            return fail_message("No birthdays this week.")
+        
+        result = ["Birthdays this week:"]
+        for name, bday_date in birthdays.items():
+            result.append(f"  {name}: {bday_date.strftime('%d.%m.%Y')}")
+        return success_message("\n".join(result))
 
     @staticmethod
     def _get_file_path():
