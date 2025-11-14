@@ -256,7 +256,7 @@ class AddressBook(Selection):
                     birthdays_today[name.value] = today_bday
 
                     greetings_sug = questionary.confirm(
-                        f"Do you want that I suggest some greetings for {name.value}?"
+                        f"Do you want me to suggest some greetings for {name.value}?"
                     ).ask()
                     if greetings_sug:
                         try:
