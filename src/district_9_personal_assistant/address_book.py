@@ -1,10 +1,12 @@
 import os
+import random
 from typing import Optional
 from .contact import Contact
 from .name import Name
 from dataclasses import dataclass, field
 import questionary
 import pickle
+from datetime import date, timedelta
 
 from .selection import Selection
 from .message import fail_message, success_message
@@ -200,3 +202,57 @@ class AddressBook(Selection):
                 return pickle.load(f)
         except FileNotFoundError:
             return cls()
+
+    @classmethod
+    def find_birthdays_this_week(cls, contacts: list) -> dict[str, date]:
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        birthdays_this_week = {}
+
+        for contact in contacts:
+            bday = getattr(contact, "birthday", None)
+            name = getattr(contact, "name", None)
+            if bday and bday.birthday:
+                next_bday = bday.birthday.replace(year=today.year)
+                if next_bday < today:
+                    next_bday = bday.birthday.replace(year=today.year + 1)
+                if start_of_week <= next_bday <= end_of_week:
+                    birthdays_this_week[name.value] = next_bday
+
+        return birthdays_this_week
+
+    @classmethod
+    def find_birthdays_this_day(cls, contacts: list, filepath: str = "greetings.txt") -> dict[str, date]:
+        today = date.today()
+        birthdays_today = {}
+
+        for contact in contacts:
+            bday = getattr(contact, "birthday", None)
+            name = getattr(contact, "name", None)
+            if bday and bday.birthday:
+                today_bday = bday.birthday.replace(year=today.year)
+                if today_bday == today:
+                    birthdays_today[name.value] = today_bday
+
+                    greetings_sug = questionary.confirm(
+                        f"Do you want that I suggest some greetings for {name.value}?"
+                    ).ask()
+                    if greetings_sug:
+                        try:
+                            with open(filepath, "r", encoding="utf-8") as file:
+                                greetings = [line.strip() for line in file if line.strip()]
+                            if not greetings:
+                                print("File is empty.")
+                                continue
+                            for i, greeting in enumerate(
+                                random.sample(greetings, min(3, len(greetings))), 1
+                            ):
+                                print(f"{i}. {greeting.replace('{name}', name.value)}")
+                        except Exception as e:
+                            print(f"Error reading greetings file: {e}")
+                    else:
+                        continue
+
+        return birthdays_today

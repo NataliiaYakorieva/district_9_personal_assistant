@@ -11,6 +11,7 @@ from .field import BaseField
 from .name import Name
 from .selection import Selection
 from .message import fail_message, success_message
+from .birthday import Birthday
 
 
 @dataclass
@@ -20,6 +21,7 @@ class Contact(Selection):
     notes: List[Note] = field(default_factory=list)
     emails: List[Email] = field(default_factory=list)
     addresses: List[Address] = field(default_factory=list)
+    birthday: Birthday = None
 
     def add_field(self, field_instance: BaseField):
         """Adds a field (Phone, Email, Address, Note) to the contact."""
@@ -318,3 +320,15 @@ class Contact(Selection):
             a.is_main = False
         address.is_main = True
         return success_message(f"Main address set to {address} for contact {self.name}.")
+
+    def add_birthday(self) -> str:
+        """
+        Add or update the birthday for this contact.
+        """
+        bday = questionary.text("Birthday:").ask()
+        try:
+            birthday_obj = Birthday(bday)
+            self.birthday = birthday_obj
+            return success_message(f"Birthday set to {birthday_obj.birthday.strftime(Birthday.DATE_FORMAT)} for contact {self.name.value}.")
+        except ValueError as e:
+            return fail_message(f"Cannot add birthday: {e}")
