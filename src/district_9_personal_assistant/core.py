@@ -41,6 +41,11 @@ def run_personal_assistant():
     book = AddressBook.load_from_file()
     print("Welcome to the Personal Assistant!")
     print(commands_info)
+    
+    greetings_file = "src/district_9_personal_assistant/constants/greetings.txt"
+    birthdays_today = AddressBook.find_birthdays_this_day(book.contacts, greetings_file)
+    if birthdays_today:
+        print(success_message(f"\n🎉 Today's birthdays: {', '.join(birthdays_today.keys())}"))
 
     while True:
         active_contact = book.get_active_contact()
@@ -80,6 +85,8 @@ def run_personal_assistant():
                     print(book.delete_contact())
                 case Commands.SHOW_CONTACTS.value:
                     print(book.show_contacts())
+                case Commands.FIND_BIRTHDAYS_THIS_WEEK.value:
+                    print(book.show_birthdays_this_week())
                 case Commands.EXIT.value:
                     handle_exit()
                     break
@@ -129,6 +136,10 @@ def run_personal_assistant():
                     print(book.show_addresses())
                 case Commands.SET_MAIN_ADDRESS.value:
                     print(book.set_main_address())
+                case Commands.ADD_BIRTHDAY.value:
+                    print(book.add_birthday())
+                case Commands.SHOW_BIRTHDAY.value:
+                    print(book.show_birthday())
                 case Commands.EXIT.value:
                     handle_exit()
                     break
