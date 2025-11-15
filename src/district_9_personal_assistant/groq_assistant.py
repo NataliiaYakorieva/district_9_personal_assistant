@@ -82,9 +82,7 @@ def listen() -> Optional[str]:
         return None
 
 
-# -----------------------
 #  GROQ CHAT
-# -----------------------
 
 def ask_groq(user_text: str) -> str:
     """Send text to Groq model and return its response."""
@@ -113,19 +111,17 @@ def ask_groq(user_text: str) -> str:
         return answer
 
     except Exception as error:  # noqa: BLE001
-        print(f"Groq error: {error!r}")
-        return "I had a problem contacting the AI service. Please try again."
+        print(f"Assistant error: {error!r}")
+        return "I had a problem contacting the assistant service. Please try again."
 
 
-# -----------------------
 #  MAIN LOOP
-# -----------------------
 
 def main() -> None:
     """Main loop of the voice assistant."""
     speak(
-        "Hello! I am your Groq voice assistant. "
-        "You can ask me anything in English."
+        "Hello! I am your PERSONAL ASSISTANT. "
+        "What would you like to ask?"
     )
 
     while True:
