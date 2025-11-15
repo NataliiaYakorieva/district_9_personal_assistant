@@ -44,6 +44,7 @@ class Commands(Enum):
     DELETE_ADDRESS = "delete_address"
     SHOW_ADDRESSES = "show_addresses"
     SET_MAIN_ADDRESS = "set_main_address"
+    OPEN_IN_GOOGLE_MAPS = "open_in_google_maps"
 
     # birthday
     ADD_BIRTHDAY = "add_birthday"
@@ -89,6 +90,7 @@ contact_commands_list = [
     Commands.DELETE_ADDRESS.value,
     Commands.SHOW_ADDRESSES.value,
     Commands.SET_MAIN_ADDRESS.value,
+    Commands.OPEN_IN_GOOGLE_MAPS.value,
     # birthday
     Commands.ADD_BIRTHDAY.value,
     Commands.SHOW_BIRTHDAY.value,
@@ -167,6 +169,8 @@ commands_info = (
     "    - contact name (required): Name of the contact whose addresses to list\n"
     "  set_main_address\n"
     "    - contact name (required): Name of the contact to set the main address\n"
+    "  open_in_google_maps\n"
+    "    - contact name (required): Name of the contact whose main address to open\n"
     "  add_birthday\n"
     "    - contact name (required): Name of the contact to add a birthday to\n"
     "    - birthday (required): Birthday in DD.MM.YYYY format\n"

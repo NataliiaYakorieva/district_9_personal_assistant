@@ -1,14 +1,22 @@
-from typing import List, Any
+from typing import List, Any, Callable, Optional
 import questionary
 
 
 class Selection:
+    """
+    Provides interactive selection functionality for lists of items.
+    """
+
     @staticmethod
     def select_item_interactively(
             items: List[Any],
-            display_func,
+            display_func: Callable[[Any], str],
             message: str,
-    ) -> Any:
+    ) -> Optional[Any]:
+        """
+        Interactively select an item from a list using questionary.
+        Returns the selected item, or None if no selection is made.
+        """
         if not items:
             return None
         if len(items) == 1:
