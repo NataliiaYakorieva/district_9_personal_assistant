@@ -1,15 +1,16 @@
 import os
 import random
 from typing import Optional
-from .contact import Contact
-from .name import Name
+from datetime import date, timedelta
 from dataclasses import dataclass, field
+
 import questionary
 import pickle
-from datetime import date, timedelta
 
-from .selection import Selection
-from .message import fail_message, success_message
+from src.district_9_personal_assistant.contact import Contact
+from src.district_9_personal_assistant.name import Name
+from src.district_9_personal_assistant.selection import Selection
+from src.district_9_personal_assistant.helpers.message import fail_message, success_message
 
 
 @dataclass
@@ -20,9 +21,10 @@ class AddressBook(Selection):
     contacts: list = field(default_factory=list)
     _active_contact: Optional[Contact] = None
 
-    def add_contact(self):
+    def add_contact(self) -> str:
         """
         Add a new contact to the address book.
+        Returns a success or failure message.
         """
         name_str = questionary.text("Contact name:").ask()
         if any(contact.name.value.lower() == name_str.lower() for contact in self.contacts):
@@ -41,6 +43,7 @@ class AddressBook(Selection):
     def find_contact(self, used_for_selection: bool = False) -> Optional[Contact]:
         """
         Find a contact by name or by interactive selection.
+        Returns the selected Contact or None.
         """
         if not used_for_selection and not self.contacts:
             return fail_message("No contacts found.")
@@ -50,9 +53,10 @@ class AddressBook(Selection):
             "Select contact:"
         )
 
-    def select_active_contact(self):
+    def select_active_contact(self) -> str:
         """
         Set the active contact for further operations using interactive selection.
+        Returns a success or failure message.
         """
         contact = self.select_item_interactively(
             self.contacts,
@@ -64,158 +68,160 @@ class AddressBook(Selection):
         self._active_contact = contact
         return success_message(f"Active contact set to {contact.name.value}.")
 
-    def back_to_book(self):
+    def back_to_book(self) -> str:
         """
         Return to the address book (unset active contact).
+        Returns a success message.
         """
         self._active_contact = None
         return success_message("Returned to address book.")
 
-    def get_active_contact(self):
+    def get_active_contact(self) -> Optional[Contact]:
         """
         Get the currently active contact.
+        Returns the active Contact or None.
         """
         return self._active_contact
 
-    def add_phone(self):
+    def add_phone(self) -> str:
         """
         Add a phone to the active contact.
         """
         return self._active_contact.add_phone()
 
-    def edit_phone(self):
+    def edit_phone(self) -> str:
         """
         Edit a phone of the active contact.
         """
         return self._active_contact.edit_phone()
 
-    def delete_phone(self):
+    def delete_phone(self) -> str:
         """
         Delete a phone from the active contact.
         """
         return self._active_contact.delete_phone()
 
-    def set_main_phone(self):
+    def set_main_phone(self) -> str:
         """
         Set a phone as main for the active contact.
         """
         return self._active_contact.set_main_phone()
 
-    def show_phones(self):
+    def show_phones(self) -> str:
         """
         Show all phones of the active contact.
         """
         return self._active_contact.show_phones()
 
-    def add_email(self):
+    def add_email(self) -> str:
         """
         Add an email to the active contact.
         """
         return self._active_contact.add_email()
 
-    def edit_email(self):
+    def edit_email(self) -> str:
         """
         Edit an email of the active contact.
         """
         return self._active_contact.edit_email()
 
-    def delete_email(self):
+    def delete_email(self) -> str:
         """
         Delete an email from the active contact.
         """
         return self._active_contact.delete_email()
 
-    def show_emails(self):
+    def show_emails(self) -> str:
         """
         Show all emails of the active contact.
         """
         return self._active_contact.show_emails()
 
-    def set_main_email(self):
+    def set_main_email(self) -> str:
         """
         Set an email as main for the active contact.
         """
         return self._active_contact.set_main_email()
 
-    def add_note(self):
+    def add_note(self) -> str:
         """
         Add a note to the active contact.
         """
         return self._active_contact.add_note()
 
-    def show_notes(self):
+    def show_notes(self) -> str:
         """
         Show all notes of the active contact.
         """
         return self._active_contact.show_notes()
 
-    def edit_note(self):
+    def edit_note(self) -> str:
         """
         Edit a note of the active contact.
         """
         return self._active_contact.edit_note()
 
-    def delete_note(self):
+    def delete_note(self) -> str:
         """
         Delete a note from the active contact.
         """
         return self._active_contact.delete_note()
 
-    def find_note(self):
+    def find_note(self) -> str:
         """
         Find a note of the active contact.
         """
         return self._active_contact.find_note()
 
-    def find_by_tag(self):
+    def find_by_tag(self) -> str:
         """
         Find notes by tag for the active contact.
         """
         return self._active_contact.find_by_tag()
 
-    def add_address(self):
+    def add_address(self) -> str:
         """
         Add an address to the active contact.
         """
         return self._active_contact.add_address()
 
-    def edit_address(self):
+    def edit_address(self) -> str:
         """
         Edit an address of the active contact.
         """
         return self._active_contact.edit_address()
 
-    def delete_address(self):
+    def delete_address(self) -> str:
         """
         Delete an address from the active contact.
         """
         return self._active_contact.delete_address()
 
-    def show_addresses(self):
+    def show_addresses(self) -> str:
         """
         Show all addresses of the active contact.
         """
         return self._active_contact.show_addresses()
 
-    def set_main_address(self):
+    def set_main_address(self) -> str:
         """
         Set an address as main for the active contact.
         """
         return self._active_contact.set_main_address()
 
-    def add_birthday(self):
+    def add_birthday(self) -> str:
         """
         Add a birthday to the active contact.
         """
         return self._active_contact.add_birthday()
 
-    def show_birthday(self):
+    def show_birthday(self) -> str:
         """
         Show the birthday of the active contact.
         """
         return self._active_contact.show_birthday()
 
-    def edit_contact(self):
+    def edit_contact(self) -> str:
         """
         Edit the name of an existing contact.
         """
@@ -230,7 +236,7 @@ class AddressBook(Selection):
         contact.name.value = new_name
         return success_message(f"Contact name updated to {new_name}.")
 
-    def delete_contact(self):
+    def delete_contact(self) -> str:
         """
         Remove a contact from the address book.
         """
@@ -242,7 +248,7 @@ class AddressBook(Selection):
             self._active_contact = None
         return success_message(f"Contact {contact.name.value} removed.")
 
-    def show_contacts(self):
+    def show_contacts(self) -> str:
         """
         Show all contacts in the address book.
         """
@@ -253,13 +259,13 @@ class AddressBook(Selection):
             for idx, contact in enumerate(self.contacts)
         )
 
-    def open_in_google_maps(self):
+    def open_in_google_maps(self) -> None:
         """
         Open the main address of the active contact on Google Maps.
         """
         return self._active_contact.open_in_google_maps()
 
-    def show_birthdays_this_week(self):
+    def show_birthdays_this_week(self) -> str:
         """
         Find and display all contacts with birthdays this week.
         """
@@ -273,14 +279,14 @@ class AddressBook(Selection):
         return success_message("\n".join(result))
 
     @staticmethod
-    def _get_file_path():
+    def _get_file_path() -> str:
         """
         Get the file path for saving/loading the address book.
         """
         home = os.path.expanduser("~")
         return os.path.join(home, "address_book.pkl")
 
-    def save_to_file(self):
+    def save_to_file(self) -> None:
         """
         Save the address book to a file.
         """
@@ -289,7 +295,7 @@ class AddressBook(Selection):
             pickle.dump(self, file)
 
     @classmethod
-    def load_from_file(cls):
+    def load_from_file(cls) -> "AddressBook":
         """
         Load the address book from a file.
         """
@@ -304,6 +310,7 @@ class AddressBook(Selection):
     def find_birthdays_this_week(cls, contacts: list) -> dict[str, date]:
         """
         Find contacts with birthdays this week.
+        Returns a dictionary mapping contact names to birthday dates.
         """
         today = date.today()
         start_of_week = today - timedelta(days=today.weekday())
@@ -328,6 +335,7 @@ class AddressBook(Selection):
             cls, contacts: list, filepath: str = "greetings.txt") -> dict[str, date]:
         """
         Find contacts with birthdays today and optionally suggest greetings.
+        Returns a dictionary mapping contact names to today's date.
         """
         today = date.today()
         birthdays_today = {}

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import re
 
-from .field import BaseField
+from src.district_9_personal_assistant.field import BaseField
 
 
 @dataclass
@@ -25,7 +25,15 @@ class Email(BaseField):
 
     @classmethod
     def from_dict(cls, data: dict) -> "Email":
-        """Create Email from a plain dict."""
+        """
+        Create Email from a plain dict.
+
+        Args:
+            data: Dictionary containing email data.
+
+        Returns:
+            Email instance.
+        """
         return cls(**data)
 
     def __str__(self) -> str:

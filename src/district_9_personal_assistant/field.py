@@ -9,7 +9,7 @@ class BaseField(ABC):
     for validation, serialization, and representation.
     """
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Ensures that validation is called after the dataclass is initialized.
         Subclasses should implement their normalization and validation logic here.
@@ -25,7 +25,12 @@ class BaseField(ABC):
         pass
 
     def to_dict(self) -> dict:
-        """Converts the field to a dictionary for serialization."""
+        """
+        Converts the field to a dictionary for serialization.
+
+        Returns:
+            Dictionary representation of the field.
+        """
         return asdict(self)
 
     @classmethod
@@ -37,6 +42,13 @@ class BaseField(ABC):
     def update(self, new_data: dict) -> None:
         """
         Updates the fields of the instance with new data and re-validates.
+
+        Args:
+            new_data: Dictionary with new field values.
+
+        Raises:
+            TypeError: If not a dataclass instance.
+            ValueError: If no changes detected or validation fails.
         """
         if not is_dataclass(self):
             raise TypeError("update() is only supported for dataclass instances.")
