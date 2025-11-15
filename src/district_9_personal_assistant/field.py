@@ -51,18 +51,18 @@ class BaseField(ABC):
                 if old_value != new_value:
                     has_changes = True
                 setattr(self, field_info.name, new_value)
-        
+
         if not has_changes:
-            raise ValueError("No changes detected. The new value is the same as the current value.")
+            raise ValueError(
+                "No changes detected. The new value is the same as the current value.")
 
         # If validation fails, restore the old values
         try:
             self.validate()
-        except (ValueError, TypeError) as e:
+        except (ValueError, TypeError):
             for field_name, old_value in old_values.items():
                 setattr(self, field_name, old_value)
             raise
 
     def __str__(self) -> str:
-        """Default string representation."""
         return self.__class__.__name__

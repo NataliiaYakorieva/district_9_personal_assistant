@@ -1,7 +1,7 @@
 from .address_book import AddressBook
 import questionary
 from .constants.commands import book_commands_list, contact_commands_list, commands_info, Commands
-from .message import fail_message, success_message
+from .message import fail_message, success_message, info_message
 
 
 def input_error(func):
@@ -39,9 +39,9 @@ def get_current_commands_list(active_contact):
 
 def run_personal_assistant():
     book = AddressBook.load_from_file()
-    print("Welcome to the Personal Assistant!")
+    print(info_message("Welcome to the Personal Assistant!"))
     print(commands_info)
-    
+
     greetings_file = "src/district_9_personal_assistant/constants/greetings.txt"
     birthdays_today = AddressBook.find_birthdays_this_day(book.contacts, greetings_file)
     if birthdays_today:
@@ -52,7 +52,7 @@ def run_personal_assistant():
         commands_list = get_current_commands_list(active_contact)
 
         if active_contact is not None:
-            print(success_message(f"Working on the contact: {active_contact.name}"))
+            print(info_message(f"Working on the contact: {active_contact.name}"))
 
         user_input = questionary.autocomplete(
             "Enter a command:",
@@ -136,6 +136,8 @@ def run_personal_assistant():
                     print(book.show_addresses())
                 case Commands.SET_MAIN_ADDRESS.value:
                     print(book.set_main_address())
+                case Commands.OPEN_IN_GOOGLE_MAPS.value:
+                    print(book.open_in_google_maps())
                 case Commands.ADD_BIRTHDAY.value:
                     print(book.add_birthday())
                 case Commands.SHOW_BIRTHDAY.value:

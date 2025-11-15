@@ -21,7 +21,9 @@ class AddressBook(Selection):
     _active_contact: Optional[Contact] = None
 
     def add_contact(self):
-        """Add a new contact to the address book."""
+        """
+        Add a new contact to the address book.
+        """
         name_str = questionary.text("Contact name:").ask()
         if any(contact.name.value.lower() == name_str.lower() for contact in self.contacts):
             return fail_message(
@@ -36,8 +38,12 @@ class AddressBook(Selection):
         except ValueError as e:
             return fail_message(f"Error adding contact: {e}")
 
-    def find_contact(self):
-        """Find a contact by name or by interactive selection."""
+    def find_contact(self, used_for_selection: bool = False) -> Optional[Contact]:
+        """
+        Find a contact by name or by interactive selection.
+        """
+        if not used_for_selection and not self.contacts:
+            return fail_message("No contacts found.")
         return self.select_item_interactively(
             self.contacts,
             lambda c: c.name.value,
@@ -45,7 +51,9 @@ class AddressBook(Selection):
         )
 
     def select_active_contact(self):
-        """Set the active contact for further operations using interactive selection."""
+        """
+        Set the active contact for further operations using interactive selection.
+        """
         contact = self.select_item_interactively(
             self.contacts,
             lambda c: c.name.value,
@@ -57,109 +65,161 @@ class AddressBook(Selection):
         return success_message(f"Active contact set to {contact.name.value}.")
 
     def back_to_book(self):
-        """Return to the address book (unset active contact)."""
+        """
+        Return to the address book (unset active contact).
+        """
         self._active_contact = None
-        return "Returned to address book."
+        return success_message("Returned to address book.")
 
     def get_active_contact(self):
-        """Get the currently active contact."""
+        """
+        Get the currently active contact.
+        """
         return self._active_contact
 
     def add_phone(self):
-        """Add a phone to the active contact."""
+        """
+        Add a phone to the active contact.
+        """
         return self._active_contact.add_phone()
 
     def edit_phone(self):
-        """Edit a phone of the active contact."""
+        """
+        Edit a phone of the active contact.
+        """
         return self._active_contact.edit_phone()
 
     def delete_phone(self):
-        """Delete a phone from the active contact."""
+        """
+        Delete a phone from the active contact.
+        """
         return self._active_contact.delete_phone()
 
     def set_main_phone(self):
-        """Set a phone as main for the active contact."""
+        """
+        Set a phone as main for the active contact.
+        """
         return self._active_contact.set_main_phone()
 
     def show_phones(self):
-        """Show all phones of the active contact."""
+        """
+        Show all phones of the active contact.
+        """
         return self._active_contact.show_phones()
 
     def add_email(self):
-        """Add an email to the active contact."""
+        """
+        Add an email to the active contact.
+        """
         return self._active_contact.add_email()
 
     def edit_email(self):
-        """Edit an email of the active contact."""
+        """
+        Edit an email of the active contact.
+        """
         return self._active_contact.edit_email()
 
     def delete_email(self):
-        """Delete an email from the active contact."""
+        """
+        Delete an email from the active contact.
+        """
         return self._active_contact.delete_email()
 
     def show_emails(self):
-        """Show all emails of the active contact."""
+        """
+        Show all emails of the active contact.
+        """
         return self._active_contact.show_emails()
 
     def set_main_email(self):
-        """Set an email as main for the active contact."""
+        """
+        Set an email as main for the active contact.
+        """
         return self._active_contact.set_main_email()
 
     def add_note(self):
-        """Add a note to the active contact."""
+        """
+        Add a note to the active contact.
+        """
         return self._active_contact.add_note()
 
     def show_notes(self):
-        """Show all notes of the active contact."""
+        """
+        Show all notes of the active contact.
+        """
         return self._active_contact.show_notes()
 
     def edit_note(self):
-        """Edit a note of the active contact."""
+        """
+        Edit a note of the active contact.
+        """
         return self._active_contact.edit_note()
 
     def delete_note(self):
-        """Delete a note from the active contact."""
+        """
+        Delete a note from the active contact.
+        """
         return self._active_contact.delete_note()
 
     def find_note(self):
-        """Find a note of the active contact."""
+        """
+        Find a note of the active contact.
+        """
         return self._active_contact.find_note()
 
     def find_by_tag(self):
-        """Find notes by tag for the active contact."""
+        """
+        Find notes by tag for the active contact.
+        """
         return self._active_contact.find_by_tag()
 
     def add_address(self):
-        """Add an address to the active contact."""
+        """
+        Add an address to the active contact.
+        """
         return self._active_contact.add_address()
 
     def edit_address(self):
-        """Edit an address of the active contact."""
+        """
+        Edit an address of the active contact.
+        """
         return self._active_contact.edit_address()
 
     def delete_address(self):
-        """Delete an address from the active contact."""
+        """
+        Delete an address from the active contact.
+        """
         return self._active_contact.delete_address()
 
     def show_addresses(self):
-        """Show all addresses of the active contact."""
+        """
+        Show all addresses of the active contact.
+        """
         return self._active_contact.show_addresses()
 
     def set_main_address(self):
-        """Set an address as main for the active contact."""
+        """
+        Set an address as main for the active contact.
+        """
         return self._active_contact.set_main_address()
 
     def add_birthday(self):
-        """Add a birthday to the active contact."""
+        """
+        Add a birthday to the active contact.
+        """
         return self._active_contact.add_birthday()
 
     def show_birthday(self):
-        """Show the birthday of the active contact."""
+        """
+        Show the birthday of the active contact.
+        """
         return self._active_contact.show_birthday()
 
     def edit_contact(self):
-        """Edit the name of an existing contact."""
-        contact = self.find_contact()
+        """
+        Edit the name of an existing contact.
+        """
+        contact = self.find_contact(True)
         if contact is None:
             return fail_message("No contacts found.")
         new_name = questionary.text("Enter new name for:", default=contact.name.value).ask()
@@ -171,8 +231,10 @@ class AddressBook(Selection):
         return success_message(f"Contact name updated to {new_name}.")
 
     def delete_contact(self):
-        """Remove a contact from the address book."""
-        contact = self.find_contact()
+        """
+        Remove a contact from the address book.
+        """
+        contact = self.find_contact(True)
         if contact is None:
             return fail_message("No contacts found.")
         self.contacts.remove(contact)
@@ -181,7 +243,9 @@ class AddressBook(Selection):
         return success_message(f"Contact {contact.name.value} removed.")
 
     def show_contacts(self):
-        """Show all contacts in the address book."""
+        """
+        Show all contacts in the address book.
+        """
         if not self.contacts:
             return fail_message("No contacts found.")
         return "\n".join(
@@ -189,12 +253,20 @@ class AddressBook(Selection):
             for idx, contact in enumerate(self.contacts)
         )
 
+    def open_in_google_maps(self):
+        """
+        Open the main address of the active contact on Google Maps.
+        """
+        return self._active_contact.open_in_google_maps()
+
     def show_birthdays_this_week(self):
-        """Find and display all contacts with birthdays this week."""
+        """
+        Find and display all contacts with birthdays this week.
+        """
         birthdays = self.find_birthdays_this_week(self.contacts)
         if not birthdays:
             return fail_message("No birthdays this week.")
-        
+
         result = ["Birthdays this week:"]
         for name, bday_date in birthdays.items():
             result.append(f"  {name}: {bday_date.strftime('%d.%m.%Y')}")
@@ -202,19 +274,25 @@ class AddressBook(Selection):
 
     @staticmethod
     def _get_file_path():
-        """Get the file path for saving/loading the address book."""
+        """
+        Get the file path for saving/loading the address book.
+        """
         home = os.path.expanduser("~")
         return os.path.join(home, "address_book.pkl")
 
     def save_to_file(self):
-        """Save the address book to a file."""
+        """
+        Save the address book to a file.
+        """
         file_path = self._get_file_path()
         with open(file_path, "wb") as file:
             pickle.dump(self, file)
 
     @classmethod
     def load_from_file(cls):
-        """Load the address book from a file."""
+        """
+        Load the address book from a file.
+        """
         file_path = os.path.join(os.path.expanduser("~"), "address_book.pkl")
         try:
             with open(file_path, "rb") as f:
@@ -224,6 +302,9 @@ class AddressBook(Selection):
 
     @classmethod
     def find_birthdays_this_week(cls, contacts: list) -> dict[str, date]:
+        """
+        Find contacts with birthdays this week.
+        """
         today = date.today()
         start_of_week = today - timedelta(days=today.weekday())
         end_of_week = start_of_week + timedelta(days=6)
@@ -243,7 +324,11 @@ class AddressBook(Selection):
         return birthdays_this_week
 
     @classmethod
-    def find_birthdays_this_day(cls, contacts: list, filepath: str = "greetings.txt") -> dict[str, date]:
+    def find_birthdays_this_day(
+            cls, contacts: list, filepath: str = "greetings.txt") -> dict[str, date]:
+        """
+        Find contacts with birthdays today and optionally suggest greetings.
+        """
         today = date.today()
         birthdays_today = {}
 

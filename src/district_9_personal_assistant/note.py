@@ -44,6 +44,7 @@ class Note(BaseField):
             content: str = "",
             tags_string: Optional[str] = "",
             title: Optional[str] = ""):
+        """Update the note's content, title, and tags."""
         self.content = content
         self.title = title
         self.tags_string = tags_string

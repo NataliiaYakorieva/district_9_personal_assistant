@@ -72,4 +72,11 @@ class Address(BaseField):
             zip_code=data.get("zip_code", ""),
         )
 
-    __str__ = full_address
+    def update(self, data: dict) -> None:
+        """Update Address fields from a dict."""
+        for key, value in data.items():
+            setattr(self, key, value)
+        self.__post_init__()
+
+    def __str__(self) -> str:
+        return self.full_address()

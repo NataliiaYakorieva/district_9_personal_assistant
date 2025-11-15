@@ -1,5 +1,8 @@
 # District-9 Personal Assistant
 
+_A command-line personal assistant for managing contacts, addresses, phones, emails, notes, and birthdays. 
+The assistant provides interactive flows for adding, editing, searching, and organizing your personal information._
+
 ## Requirements
 
 - **Python**: 3.13.7
@@ -107,7 +110,7 @@ You can run each command separately as shown below.
   autopep8 --in-place --aggressive --aggressive --recursive .
   ```
 
-### Run the application
+### Run the assistant
 
 - **macOS/Linux:**
   ```bash
