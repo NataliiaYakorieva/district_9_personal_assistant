@@ -61,7 +61,6 @@ book_commands_list = [
     Commands.FIND_BIRTHDAYS_THIS_WEEK.value,
     Commands.EXIT.value,
     Commands.HELP.value,
-    Commands.BACK_TO_BOOK.value
 ]
 
 contact_commands_list = [

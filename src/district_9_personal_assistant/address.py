@@ -3,14 +3,21 @@ import re
 import urllib.parse
 import webbrowser
 
-from .field import BaseField
+from src.district_9_personal_assistant.field import BaseField
 
-# Allow letters/digits/space/dash; 2–20 chars
 ZIP_PATTERN = re.compile(r"^[A-Za-z0-9\- ]{2,20}$")
 
 
 def _clean_text(value: str) -> str:
-    """Trim spaces and collapse internal whitespace."""
+    """
+    Trim spaces and collapse internal whitespace.
+
+    Args:
+        value: The string to clean.
+
+    Returns:
+        Cleaned string.
+    """
     if not value:
         return ""
     return " ".join(value.strip().split())
@@ -18,7 +25,8 @@ def _clean_text(value: str) -> str:
 
 @dataclass
 class Address(BaseField):
-    """Represents a postal address.
+    """
+    Represents a postal address.
 
     Normalization rules:
       - street and city -> Title Case
@@ -31,7 +39,9 @@ class Address(BaseField):
     zip_code: str
 
     def __post_init__(self) -> None:
-        """Clean and validate fields."""
+        """
+        Clean and validate fields.
+        """
         self.country = _clean_text(self.country).upper()
         self.city = _clean_text(self.city).title()
         self.street_address = _clean_text(self.street_address).title()
@@ -39,6 +49,10 @@ class Address(BaseField):
         super().__post_init__()
 
     def validate(self) -> None:
+        """
+        Validate the zip_code format.
+        Raises ValueError if invalid.
+        """
         if not ZIP_PATTERN.match(self.zip_code):
             raise ValueError(
                 "zip_code must contain only letters, digits, spaces or dashes "
@@ -46,7 +60,12 @@ class Address(BaseField):
             )
 
     def full_address(self) -> str:
-        """Return the formatted full address."""
+        """
+        Return the formatted full address.
+
+        Returns:
+            Full address string.
+        """
         parts = [
             self.street_address,
             self.city,
@@ -56,7 +75,9 @@ class Address(BaseField):
         return ", ".join(p for p in parts if p)
 
     def open_in_google_maps(self) -> None:
-        """Open the address in Google Maps (default browser)."""
+        """
+        Open the address in Google Maps (default browser).
+        """
         base = "https://www.google.com/maps/search/?api=1&query="
         query = urllib.parse.quote(self.full_address())
         url = base + query
@@ -64,7 +85,15 @@ class Address(BaseField):
 
     @classmethod
     def from_dict(cls, data: dict) -> "Address":
-        """Create Address from a plain dict."""
+        """
+        Create Address from a plain dict.
+
+        Args:
+            data: Dictionary containing address data.
+
+        Returns:
+            Address instance.
+        """
         return cls(
             country=data.get("country", ""),
             city=data.get("city", ""),
@@ -73,7 +102,12 @@ class Address(BaseField):
         )
 
     def update(self, data: dict) -> None:
-        """Update Address fields from a dict."""
+        """
+        Update Address fields from a dict.
+
+        Args:
+            data: Dictionary with new address data.
+        """
         for key, value in data.items():
             setattr(self, key, value)
         self.__post_init__()
