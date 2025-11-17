@@ -1,7 +1,8 @@
 from datetime import datetime, date
 from dataclasses import dataclass
-from .field import BaseField
-from .message import fail_message
+
+from src.district_9_personal_assistant.field import BaseField
+from src.district_9_personal_assistant.helpers.message import fail_message
 
 
 @dataclass
@@ -60,6 +61,12 @@ class Birthday(BaseField):
     def from_dict(cls, data: dict) -> "Birthday":
         """
         Create Birthday from a plain dict.
+
+        Args:
+            data: Dictionary containing birthday data.
+
+        Returns:
+            Birthday instance.
         """
         return cls(value=data.get("value", ""))
 
@@ -67,6 +74,9 @@ class Birthday(BaseField):
     def age(self) -> int:
         """
         Calculate the age based on the birthday.
+
+        Returns:
+            Age as integer.
         """
         if not self.birthday:
             return 0
@@ -80,6 +90,9 @@ class Birthday(BaseField):
     def has_had_birthday_this_year(self) -> bool:
         """
         Check if the birthday has occurred this year.
+
+        Returns:
+            True if birthday has occurred this year, False otherwise.
         """
         if not self.birthday:
             return False

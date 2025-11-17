@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
-from .field import BaseField
+
+from src.district_9_personal_assistant.field import BaseField
 
 PHONE_PATTERN = re.compile(r'^\+[1-9][0-9]{7,14}$')
 

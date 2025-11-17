@@ -1,30 +1,36 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional, Callable
 
 import questionary
 
-from .phone import Phone
-from .note import Note
-from .email import Email
-from .address import Address
-from .field import BaseField
-from .name import Name
-from .selection import Selection
-from .message import fail_message, success_message
-from .birthday import Birthday
+from src.district_9_personal_assistant.phone import Phone
+from src.district_9_personal_assistant.note import Note
+from src.district_9_personal_assistant.email import Email
+from src.district_9_personal_assistant.address import Address
+from src.district_9_personal_assistant.field import BaseField
+from src.district_9_personal_assistant.name import Name
+from src.district_9_personal_assistant.selection import Selection
+from src.district_9_personal_assistant.helpers.message import fail_message, success_message
+from src.district_9_personal_assistant.birthday import Birthday
 
 
 @dataclass
 class Contact(Selection):
+    """
+    Represents a contact with fields for name, phones, notes, emails, addresses, and birthday.
+    """
     name: Name
     phones: List[Phone] = field(default_factory=list)
     notes: List[Note] = field(default_factory=list)
     emails: List[Email] = field(default_factory=list)
     addresses: List[Address] = field(default_factory=list)
-    birthday: Birthday = None
+    birthday: Optional[Birthday] = None
 
-    def add_field(self, field_instance: BaseField):
-        """Adds a field (Phone, Email, Address, Note) to the contact."""
+    def add_field(self, field_instance: BaseField) -> str:
+        """
+        Adds a field (Phone, Email, Address, Note) to the contact.
+        Returns a success or failure message.
+        """
         try:
             if isinstance(field_instance, Phone):
                 if field_instance.is_main:
@@ -43,8 +49,10 @@ class Contact(Selection):
             return fail_message(f"Error adding field: {e}")
 
     @staticmethod
-    def _require_note(func):
-        """Decorator to ensure a note is selected before proceeding."""
+    def _require_note(func: Callable) -> Callable:
+        """
+        Decorator to ensure a note is selected before proceeding.
+        """
 
         def wrapper(self, *args, **kwargs):
             note = self.find_note(True)
@@ -54,8 +62,10 @@ class Contact(Selection):
         return wrapper
 
     @staticmethod
-    def _require_phone(func):
-        """Decorator to ensure a phone is selected before proceeding."""
+    def _require_phone(func: Callable) -> Callable:
+        """
+        Decorator to ensure a phone is selected before proceeding.
+        """
 
         def wrapper(self, *args, **kwargs):
             phone = self.find_phone()
@@ -64,8 +74,10 @@ class Contact(Selection):
             return func(self, phone, *args, **kwargs)
         return wrapper
 
-    def find_phone(self):
-        """Find a phone number interactively (with selection)."""
+    def find_phone(self) -> Optional[Phone]:
+        """
+        Find a phone number interactively (with selection).
+        """
         return self.select_item_interactively(
             self.phones,
             lambda p: p.number,
@@ -73,8 +85,10 @@ class Contact(Selection):
         )
 
     @_require_phone
-    def edit_phone(self, phone: Phone):
-        """Edit the selected phone."""
+    def edit_phone(self, phone: Phone) -> str:
+        """
+        Edit the selected phone.
+        """
         new_number = questionary.text("New phone number:", default=phone.number).ask()
         try:
             phone.update({"number": new_number})
@@ -83,13 +97,17 @@ class Contact(Selection):
             return fail_message(f"Error: {e}")
 
     @_require_phone
-    def delete_phone(self, phone):
-        """Delete the selected phone."""
+    def delete_phone(self, phone: Phone) -> str:
+        """
+        Delete the selected phone.
+        """
         self.phones.remove(phone)
         return success_message(f"Phone {phone.number} deleted from contact {self.name}.")
 
     def add_phone(self) -> str:
-        """Add a phone number to the contact."""
+        """
+        Add a phone number to the contact.
+        """
         phone_number = questionary.text(
             "Phone number:",
             instruction="[International phone number, 8–15 digits, example: +4912345678901]"
@@ -104,13 +122,15 @@ class Contact(Selection):
         except ValueError as e:
             return fail_message(f"Error adding phone: {e}")
 
-    def _reset_main_phone(self):
-        """Reset the main phone flag for all phones."""
+    def _reset_main_phone(self) -> None:
+        """
+        Reset the main phone flag for all phones.
+        """
         for p in self.phones:
             p.is_main = False
 
     @_require_phone
-    def set_main_phone(self, phone):
+    def set_main_phone(self, phone: Phone) -> str:
         """
         Set a phone number as the main phone.
         """
@@ -131,8 +151,10 @@ class Contact(Selection):
         return "; ".join(out)
 
     @staticmethod
-    def _require_email(func):
-        """Decorator to ensure an email is selected before proceeding."""
+    def _require_email(func: Callable) -> Callable:
+        """
+        Decorator to ensure an email is selected before proceeding.
+        """
 
         def wrapper(self, *args, **kwargs):
             email = self.find_email()
@@ -141,8 +163,10 @@ class Contact(Selection):
             return func(self, email, *args, **kwargs)
         return wrapper
 
-    def find_email(self):
-        """Find an email address interactively (with selection)."""
+    def find_email(self) -> Optional[Email]:
+        """
+        Find an email address interactively (with selection).
+        """
         return self.select_item_interactively(
             self.emails,
             lambda e: e.address,
@@ -150,8 +174,10 @@ class Contact(Selection):
         )
 
     @_require_email
-    def edit_email(self, email: Email):
-        """Edit the selected email."""
+    def edit_email(self, email: Email) -> str:
+        """
+        Edit the selected email.
+        """
         new_address = questionary.text("New email address:", default=email.address).ask()
         try:
             email.update({"address": new_address})
@@ -160,13 +186,17 @@ class Contact(Selection):
             return fail_message(f"Error: {e}")
 
     @_require_email
-    def delete_email(self, email):
-        """Delete the selected email."""
+    def delete_email(self, email: Email) -> str:
+        """
+        Delete the selected email.
+        """
         self.emails.remove(email)
         return success_message(f"Email {email.address} deleted from contact {self.name}.")
 
     def add_email(self) -> str:
-        """Add an email address to the contact."""
+        """
+        Add an email address to the contact.
+        """
         email_address = questionary.text("Email address:").ask().lower()
         try:
             email = Email(address=email_address)
@@ -184,7 +214,7 @@ class Contact(Selection):
         return "; ".join(email.address for email in self.emails)
 
     @_require_email
-    def set_main_email(self, email):
+    def set_main_email(self, email: Email) -> str:
         """
         Set an email address as the main email for the contact.
         """
@@ -204,7 +234,10 @@ class Contact(Selection):
             out.append(f"\n{note}\n")
         return "All notes:\n".join(out)
 
-    def add_note(self):
+    def add_note(self) -> str:
+        """
+        Add a note to the contact.
+        """
         title = questionary.text("Title:").ask()
         content = questionary.text("Content:").ask()
         tags = questionary.text("Tags (comma separated):").ask()
@@ -215,12 +248,14 @@ class Contact(Selection):
         except ValueError as e:
             return fail_message(f"Error adding note: {e}")
 
-    def find_note(self, used_for_selection: bool = False):
-        """Find a note interactively (with selection)."""
+    def find_note(self, used_for_selection: bool = False) -> Optional[Note]:
+        """
+        Find a note interactively (with selection).
+        """
         if not self.notes and not used_for_selection:
             return fail_message("No notes available.")
 
-        def display_note(note):
+        def display_note(note: Note) -> str:
             return note.title or note.content[:20]
         return self.select_item_interactively(
             self.notes,
@@ -229,8 +264,10 @@ class Contact(Selection):
         )
 
     @_require_note
-    def edit_note(self, note: Note):
-        """Edit the selected note."""
+    def edit_note(self, note: Note) -> str:
+        """
+        Edit the selected note.
+        """
         new_data = {
             "title": questionary.text("New title:", default=note.title).ask(),
             "content": questionary.text("New content:", default=note.content).ask(),
@@ -244,8 +281,10 @@ class Contact(Selection):
             return fail_message(f"Error: {e}")
 
     @_require_note
-    def delete_note(self, note):
-        """Delete the selected note."""
+    def delete_note(self, note: Note) -> str:
+        """
+        Delete the selected note.
+        """
         self.notes.remove(note)
         return success_message("Note deleted.")
 
@@ -269,8 +308,10 @@ class Contact(Selection):
         return "\n".join(f"{str(note)}\n" for note in found_notes)
 
     @staticmethod
-    def _require_address(func):
-        """Decorator to ensure an address is selected before proceeding."""
+    def _require_address(func: Callable) -> Callable:
+        """
+        Decorator to ensure an address is selected before proceeding.
+        """
 
         def wrapper(self, *args, **kwargs):
             address = self.find_address()
@@ -279,8 +320,10 @@ class Contact(Selection):
             return func(self, address, *args, **kwargs)
         return wrapper
 
-    def find_address(self):
-        """Find an address interactively (with selection)."""
+    def find_address(self) -> Optional[Address]:
+        """
+        Find an address interactively (with selection).
+        """
         return self.select_item_interactively(
             self.addresses,
             str,
@@ -288,8 +331,10 @@ class Contact(Selection):
         )
 
     @_require_address
-    def edit_address(self, address: Address):
-        """Edit the selected address."""
+    def edit_address(self, address: Address) -> str:
+        """
+        Edit the selected address.
+        """
         new_data = {
             "country": questionary.text("New country:", default=address.country).ask(),
             "city": questionary.text("New city:", default=address.city).ask(),
@@ -304,8 +349,10 @@ class Contact(Selection):
             return fail_message(f"Error: {e}")
 
     @_require_address
-    def delete_address(self, address):
-        """Delete the selected address."""
+    def delete_address(self, address: Address) -> str:
+        """
+        Delete the selected address.
+        """
         self.addresses.remove(address)
         return success_message(f"Address '{address}' deleted from contact {self.name}.")
 
@@ -338,7 +385,7 @@ class Contact(Selection):
         return "; ".join(str(address) for address in self.addresses)
 
     @_require_address
-    def set_main_address(self, address):
+    def set_main_address(self, address: Address) -> str:
         """
         Set an address as the main address for the contact.
         """
@@ -384,7 +431,7 @@ class Contact(Selection):
         """
         address.open_in_google_maps()
 
-    def __str__(self):
+    def __str__(self) -> str:
         lines = [
             f"Contact: {self.name.value}",
             f"Phones: {', '.join([str(p) for p in self.phones]) if self.phones else 'No phones'}",

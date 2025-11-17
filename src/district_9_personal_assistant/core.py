@@ -1,40 +1,15 @@
-from .address_book import AddressBook
 import questionary
-from .constants.commands import book_commands_list, contact_commands_list, commands_info, Commands
-from .message import fail_message, success_message, info_message
+from src.district_9_personal_assistant.helpers.message import info_message
 
 
-def input_error(func):
-    """
-    Decorator for handling input errors and displaying informative messages.
-    Now also handles AttributeError for missing contacts.
-    """
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except AttributeError:
-            return fail_message("Error: Contact not found")
-        except (KeyError, ValueError, IndexError) as e:
-            return fail_message(f"Error: {str(e)}")
-    return wrapper
-
-
-@input_error
-def parse_input(user_input):
-    """
-    Parses the user's input command.
-    Returns the command and a list of arguments.
-    """
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, *args
-
-
-def get_current_commands_list(active_contact):
-    if active_contact is None:
-        return book_commands_list
-    else:
-        return contact_commands_list
+from src.district_9_personal_assistant.address_book import AddressBook
+from src.district_9_personal_assistant.constants.commands import commands_info, Commands
+from src.district_9_personal_assistant.helpers.core_utils import (
+    parse_input,
+    get_commands_list_suggestions,
+    get_command_handler,
+)
+from src.district_9_personal_assistant.helpers.message import success_message, fail_message
 
 
 def run_personal_assistant():
@@ -49,7 +24,7 @@ def run_personal_assistant():
 
     while True:
         active_contact = book.get_active_contact()
-        commands_list = get_current_commands_list(active_contact)
+        commands_list = get_commands_list_suggestions(active_contact)
 
         if active_contact is not None:
             print(info_message(f"Working on the contact: {active_contact.name}"))
@@ -60,94 +35,21 @@ def run_personal_assistant():
             match_middle=True,
         ).ask()
 
-        command, *args = parse_input(user_input)
+        command = parse_input(user_input)
+        if command is None:
+            print(fail_message("Invalid command input."))
+            continue
 
-        def handle_help():
-            print(f"{commands_info}\n")
+        handler_map = get_command_handler(book)
+        handler = handler_map.get(command)
+        if handler is None:
+            print(fail_message("Unknown command. Type 'help' to see available commands."))
+            continue
 
-        def handle_exit():
-            book.save_to_file()
-            print(success_message("Exit. Data saved."))
+        result = handler()
 
-        if active_contact is None:
-            match command:
-                case Commands.ADD_CONTACT.value:
-                    print(book.add_contact())
-                case Commands.FIND_CONTACT.value:
-                    print(book.find_contact())
-                case Commands.HELP.value:
-                    handle_help()
-                case Commands.SELECT_ACTIVE_CONTACT.value:
-                    print(book.select_active_contact())
-                case Commands.EDIT_CONTACT.value:
-                    print(book.edit_contact())
-                case Commands.DELETE_CONTACT.value:
-                    print(book.delete_contact())
-                case Commands.SHOW_CONTACTS.value:
-                    print(book.show_contacts())
-                case Commands.FIND_BIRTHDAYS_THIS_WEEK.value:
-                    print(book.show_birthdays_this_week())
-                case Commands.EXIT.value:
-                    handle_exit()
-                    break
-                case _:
-                    print(fail_message("Unknown command."))
-        else:
-            match command:
-                case Commands.ADD_PHONE.value:
-                    print(book.add_phone())
-                case Commands.EDIT_PHONE.value:
-                    print(book.edit_phone())
-                case Commands.DELETE_PHONE.value:
-                    print(book.delete_phone())
-                case Commands.SHOW_PHONES.value:
-                    print(book.show_phones())
-                case Commands.SET_MAIN_PHONE.value:
-                    print(book.set_main_phone())
-                case Commands.ADD_EMAIL.value:
-                    print(book.add_email())
-                case Commands.EDIT_EMAIL.value:
-                    print(book.edit_email())
-                case Commands.DELETE_EMAIL.value:
-                    print(book.delete_email())
-                case Commands.SHOW_EMAILS.value:
-                    print(book.show_emails())
-                case Commands.SET_MAIN_EMAIL.value:
-                    print(book.set_main_email())
-                case Commands.ADD_NOTE.value:
-                    print(book.add_note())
-                case Commands.EDIT_NOTE.value:
-                    print(book.edit_note())
-                case Commands.DELETE_NOTE.value:
-                    print(book.delete_note())
-                case Commands.SHOW_NOTES.value:
-                    print(book.show_notes())
-                case Commands.FIND_NOTE.value:
-                    print(book.find_note())
-                case Commands.FIND_BY_TAG.value:
-                    print(book.find_by_tag())
-                case Commands.ADD_ADDRESS.value:
-                    print(book.add_address())
-                case Commands.EDIT_ADDRESS.value:
-                    print(book.edit_address())
-                case Commands.DELETE_ADDRESS.value:
-                    print(book.delete_address())
-                case Commands.SHOW_ADDRESSES.value:
-                    print(book.show_addresses())
-                case Commands.SET_MAIN_ADDRESS.value:
-                    print(book.set_main_address())
-                case Commands.OPEN_IN_GOOGLE_MAPS.value:
-                    print(book.open_in_google_maps())
-                case Commands.ADD_BIRTHDAY.value:
-                    print(book.add_birthday())
-                case Commands.SHOW_BIRTHDAY.value:
-                    print(book.show_birthday())
-                case Commands.EXIT.value:
-                    handle_exit()
-                    break
-                case Commands.HELP.value:
-                    handle_help()
-                case Commands.BACK_TO_BOOK.value:
-                    print(book.back_to_book())
-                case _:
-                    print(fail_message("Unknown command."))
+        if result is not None:
+            print(result)
+
+        if command == Commands.EXIT.value:
+            break
